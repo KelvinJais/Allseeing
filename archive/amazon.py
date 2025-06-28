@@ -1,4 +1,4 @@
-import helper
+from helper import load_download
 
 import requests
 import re
@@ -76,8 +76,8 @@ def updated_time_converter(updated_time):
         return ["hour",number]
 
 def get_new_test(url):
-    new_jobs_data=helper.load_json("Amazon_job_list_test")#testing
-    old_jobs_data=helper.load_json("Amazon_job_list")#testing
+    new_jobs_data=load_download.load_json("Amazon_job_list_test")#testing
+    old_jobs_data=load_download.load_json("Amazon_job_list")#testing
 
     old_jobs_hashmap=hashmap(old_jobs_data)
     brand_new_jobs=[]
@@ -100,10 +100,14 @@ def get_new_test(url):
     if len(brand_new_jobs)>0:
         send_email(brand_new_jobs)
 
-def get_new(url):
-    jobs=extract(url)
-    new_job_data=transform(jobs['jobs'])
-    old_jobs_data=helper.load_json("Amazon_job_list")#testing
+def main(test=False):
+    url="https://amazon.jobs/en/search.json?normalized_country_code%5B%5D=USA&radius=24km&industry_experience[]=less_than_1_year&facets%5B%5D=normalized_country_code&facets%5B%5D=normalized_state_name&facets%5B%5D=normalized_city_name&facets%5B%5D=location&facets%5B%5D=business_category&facets%5B%5D=category&facets%5B%5D=schedule_type_id&facets%5B%5D=employee_class&facets%5B%5D=normalized_location&facets%5B%5D=job_function_id&facets%5B%5D=is_manager&facets%5B%5D=is_intern&offset=0&result_limit=40&sort=recent&latitude=&longitude=&loc_group_id=&loc_query=&base_query=software%20engineer&city=&country=&region=&county=&query_options=&"
+    if test:
+        new_job_data=load_download.load_json("Amazon_job_list_t_new_jobs")#testing
+    else:
+        jobs=extract(url)
+        new_job_data=transform(jobs['jobs'])
+    old_jobs_data=load_download.load_json("Amazon_job_list")#testing
 
     old_jobs_hashmap=hashmap(old_jobs_data)
     brand_new_jobs=[]
@@ -120,10 +124,16 @@ def get_new(url):
                 brand_new_jobs.append(new_job)
             elif new_updated_time[0]==old_updated_time[0] and new_updated_time[1]<old_updated_time[1]:
                 brand_new_jobs.append(new_job)
-    helper.download_json(new_job_data,"Amazon_job_list") #new jobs
-    print("total", len(brand_new_jobs), "new jobs")
-    if len(brand_new_jobs)>0:
+    if not test:
+        load_download.download_json(new_job_data,"Amazon_job_list") #new jobs
+    print("total amazon", len(brand_new_jobs), "new jobs")
+    if len(brand_new_jobs)>0 and not test:
         send_email(brand_new_jobs)
+
+    if test:
+        for job in brand_new_jobs:
+            print(job)
+    return brand_new_jobs
 
 import creds
 
@@ -157,12 +167,10 @@ def send_email(jobs):
 def download_new(url):
     jobs=extract(url)
     job_list=transform(jobs['jobs'])
-    helper.download_json(job_list,"Amazon_job_list")
+    load_download.download_json(job_list,"Amazon_job_list")
 
 if __name__=="__main__":
-    url="https://amazon.jobs/en/search.json?normalized_country_code%5B%5D=USA&radius=24km&industry_experience[]=less_than_1_year&facets%5B%5D=normalized_country_code&facets%5B%5D=normalized_state_name&facets%5B%5D=normalized_city_name&facets%5B%5D=location&facets%5B%5D=business_category&facets%5B%5D=category&facets%5B%5D=schedule_type_id&facets%5B%5D=employee_class&facets%5B%5D=normalized_location&facets%5B%5D=job_function_id&facets%5B%5D=is_manager&facets%5B%5D=is_intern&offset=0&result_limit=40&sort=recent&latitude=&longitude=&loc_group_id=&loc_query=&base_query=software%20engineer&city=&country=&region=&county=&query_options=&"
-    #download_new(url)
-    get_new(url)
+    main(False)
 
 
 

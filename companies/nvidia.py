@@ -1,6 +1,7 @@
 import requests
 import json
-import helper
+from helper import load_download
+import os
 
 def extractor():
     url = "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs"
@@ -39,9 +40,18 @@ def extractor():
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-    print(response)
-
-    return response.json()['jobPostings']
+    jobs= response.json()['jobPostings']
+    items={}
+    for job in jobs:
+        item={}
+        item={"jobId":job.get("bulletFields")[0],
+              "title":job.get("title"),
+              "url":job.get("externalPath")
+                                }
+        items[job.get("bulletFields")[0]]=item
+        #key = job['bulletFields'][0]
+        #jobs_hashmap[key] = job
+    return items
 
 def hashmap(jobs):
     jobs_hashmap={}
@@ -50,9 +60,9 @@ def hashmap(jobs):
         jobs_hashmap[key] = job
     return jobs_hashmap
 
-def get_new(test=False):
+def old_main(test=False):
     new_job_data=extractor()
-    old_job_data=helper.load_json("Nvidia_jobs_list")
+    old_job_data=load_download.load_json("nvidia_jobs_list")
     brand_new_jobs=[]
     old_job_hashmap=hashmap(old_job_data)
 
@@ -61,13 +71,52 @@ def get_new(test=False):
         if id not in old_job_hashmap:
             brand_new_jobs.append(job)
     if not test:#not testing
-        helper.download_json(new_job_data,"Nvidia_jobs_list") #update the list
-    print("total", len(brand_new_jobs), "new jobs")
+        load_download.download_json(new_job_data,"nvidia_jobs_list") #update the list
+    print("total nvidia", len(brand_new_jobs), "new jobs")
     #if brand_new_jobs:
     #    send_email(brand_new_jobs)
+    return brand_new_jobs
 
 
+def oldmain(test=False):
+    if test:
+        new_job_data=load_download.load_json(f"nvidia_jobs_list_t_new_jobs")
+    else:
+        new_job_data=extractor()
+    old_job_data=load_download.load_json(f"nvidia_jobs_list")
+    brand_new_jobs=[]
+
+    for job in new_job_data.keys():
+        if job not in old_job_data:
+            brand_new_jobs.append(new_job_data[job])
+    if not test:
+        load_download.download_json(new_job_data,"nvidia_jobs_list")
+    print("total nvidia", len(brand_new_jobs),"new jobs")
+    if test:
+        print(brand_new_jobs)
+    return brand_new_jobs
+
+
+def main(test=False):
+    company_name=os.path.basename(__file__)[:-3]
+    file_path=os.path.join("data",f"{company_name}_jobs_list.json")
+    if not os.path.exists(file_path):
+        job_data=extractor()
+        load_download.download_json(job_data,f"{company_name}_jobs_list")
+        load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
+    else:
+        if test:
+            new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
+        else:
+            new_job_data=extractor()
+        old_job_data=load_download.load_json(f"{company_name}_jobs_list")
+        brand_new_jobs=[]
+        for job in new_job_data.keys():
+            if job not in old_job_data:
+                brand_new_jobs.append(new_job_data[job])
+        if not test:
+            load_download.download_json(new_job_data,f"{company_name}_jobs_list")
+        print(len(brand_new_jobs),"new jobs at",company_name)
+        return brand_new_jobs
 if __name__ =="__main__":
-    #job_list=extractor()
-    #helper.download_json(job_list,"Nvidia_jobs_list")
-    get_new()
+    main()

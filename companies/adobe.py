@@ -1,6 +1,7 @@
-import helper
+from helper import load_download
 import requests
 import json
+import os
 
 def extractor():
     url = "https://careers.adobe.com/widgets"
@@ -52,10 +53,39 @@ def extractor():
 
     response = requests.request("POST", url, headers=headers, data=payload)
     jobs=response.json().get("refineSearch").get("data").get("jobs")# title jobId
+
     items={}
     for job in jobs:
-        item={job.get("jobId"):{"title":job.get("id")}}
+        item={"jobId":job.get("jobId"),
+              "title":job.get("title"),
+              "url":job.get("applyUrl")
+                                }
+        items[job.get("jobId")]=item
+    return items
+
+def main(test=False):
+    company_name=os.path.basename(__file__)[:-3]
+    file_path=os.path.join("data",f"{company_name}_jobs_list.json")
+    if not os.path.exists(file_path):
+        job_data=extractor()
+        load_download.download_json(job_data,f"{company_name}_jobs_list")
+        load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
+    else:
+        if test:
+            new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
+        else:
+            new_job_data=extractor()
+        old_job_data=load_download.load_json(f"{company_name}_jobs_list")
+        brand_new_jobs=[]
+
+        for job in new_job_data.keys():
+            if job not in old_job_data:
+                brand_new_jobs.append(new_job_data[job])
+        if not test:
+            load_download.download_json(new_job_data,f"{company_name}_jobs_list")
+        print(len(brand_new_jobs),"new jobs at",company_name)
+        return brand_new_jobs
 
 
 if __name__ =="__main__":
-    extractor()
+    main()
