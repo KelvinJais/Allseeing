@@ -9,11 +9,6 @@
     "url": "https://careers.nutanix.com//en/jobs/29641/manager-systems-engineering/",
     "jobId": "29641"
   },
-  "29669": {
-    "title": "Linux Site Reliability Engineer",
-    "url": "https://careers.nutanix.com//en/jobs/29669/linux-site-reliability-engineer/",
-    "jobId": "29669"
-  },
   "28973": {
     "title": "Systems Sales Engineer",
     "url": "https://careers.nutanix.com//en/jobs/28973/systems-sales-engineer/",
@@ -23,11 +18,6 @@
     "title": "Sales Engineer - Federal",
     "url": "https://careers.nutanix.com//en/jobs/29161/sales-engineer-federal/",
     "jobId": "29161"
-  },
-  "29623": {
-    "title": "Staff Data Security Engineer - Nutanix Data Lens",
-    "url": "https://careers.nutanix.com//en/jobs/29623/staff-data-security-engineer-nutanix-data-lens/",
-    "jobId": "29623"
   },
   "n1710": {
     "title": "Senior Technical Marketing Engineer- NCI",
@@ -44,10 +34,10 @@
     "url": "https://careers.nutanix.com//en/jobs/n1562/sr-serviceability-engineer/",
     "jobId": "n1562"
   },
-  "29590": {
-    "title": "Inside Channel Led System Engineer",
-    "url": "https://careers.nutanix.com//en/jobs/29590/inside-channel-led-system-engineer/",
-    "jobId": "29590"
+  "29623": {
+    "title": "Staff Data Security Engineer - Nutanix Data Lens",
+    "url": "https://careers.nutanix.com//en/jobs/29623/staff-data-security-engineer-nutanix-data-lens/",
+    "jobId": "29623"
   },
   "29219": {
     "title": "Sales Engineer - Federal Intel",
@@ -64,15 +54,20 @@
     "url": "https://careers.nutanix.com//en/jobs/29566/systems-sales-engineer/",
     "jobId": "29566"
   },
-  "29448": {
-    "title": "Principal Engineer- Nutanix Cloud Manager (NCM)",
-    "url": "https://careers.nutanix.com//en/jobs/29448/principal-engineer-nutanix-cloud-manager-ncm/",
-    "jobId": "29448"
+  "29590": {
+    "title": "Inside Channel Led System Engineer",
+    "url": "https://careers.nutanix.com//en/jobs/29590/inside-channel-led-system-engineer/",
+    "jobId": "29590"
   },
   "n1706": {
     "title": "Member of Technical Staff 1 (AHV)",
     "url": "https://careers.nutanix.com//en/jobs/n1706/member-of-technical-staff-1-ahv/",
     "jobId": "n1706"
+  },
+  "29448": {
+    "title": "Principal Engineer- Nutanix Cloud Manager (NCM)",
+    "url": "https://careers.nutanix.com//en/jobs/29448/principal-engineer-nutanix-cloud-manager-ncm/",
+    "jobId": "29448"
   },
   "29271": {
     "title": "Member of Technical Staff 4",
@@ -98,5 +93,10 @@
     "title": "Technical Support Architect - Innovation & AI",
     "url": "https://careers.nutanix.com//en/jobs/n1691/technical-support-architect-innovation-ai/",
     "jobId": "n1691"
+  },
+  "n1709": {
+    "title": "Sr. Sales Manager, Commercial (California/Hawaii)",
+    "url": "https://careers.nutanix.com//en/jobs/n1709/sr-sales-manager-commercial-californiahawaii/",
+    "jobId": "n1709"
   }
 }
