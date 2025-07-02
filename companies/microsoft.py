@@ -40,10 +40,10 @@ def extractor():
 
 def main(test=False):
     company_name=os.path.basename(__file__)[:-3]
-    file_path=os.path.join("data",f"{company_name}_jobs_list.json")
+    file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data=extractor()
-        print("initializin files") 
+        print("initializing files") 
         load_download.download_json(job_data,f"{company_name}_jobs_list")
         load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
     else:

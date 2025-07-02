@@ -60,46 +60,9 @@ def hashmap(jobs):
         jobs_hashmap[key] = job
     return jobs_hashmap
 
-def old_main(test=False):
-    new_job_data=extractor()
-    old_job_data=load_download.load_json("nvidia_jobs_list")
-    brand_new_jobs=[]
-    old_job_hashmap=hashmap(old_job_data)
-
-    for job in new_job_data:
-        id=job['bulletFields'][0]
-        if id not in old_job_hashmap:
-            brand_new_jobs.append(job)
-    if not test:#not testing
-        load_download.download_json(new_job_data,"nvidia_jobs_list") #update the list
-    print("total nvidia", len(brand_new_jobs), "new jobs")
-    #if brand_new_jobs:
-    #    send_email(brand_new_jobs)
-    return brand_new_jobs
-
-
-def oldmain(test=False):
-    if test:
-        new_job_data=load_download.load_json(f"nvidia_jobs_list_t_new_jobs")
-    else:
-        new_job_data=extractor()
-    old_job_data=load_download.load_json(f"nvidia_jobs_list")
-    brand_new_jobs=[]
-
-    for job in new_job_data.keys():
-        if job not in old_job_data:
-            brand_new_jobs.append(new_job_data[job])
-    if not test:
-        load_download.download_json(new_job_data,"nvidia_jobs_list")
-    print("total nvidia", len(brand_new_jobs),"new jobs")
-    if test:
-        print(brand_new_jobs)
-    return brand_new_jobs
-
-
 def main(test=False):
     company_name=os.path.basename(__file__)[:-3]
-    file_path=os.path.join("data",f"{company_name}_jobs_list.json")
+    file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data=extractor()
         load_download.download_json(job_data,f"{company_name}_jobs_list")
@@ -118,5 +81,6 @@ def main(test=False):
             load_download.download_json(new_job_data,f"{company_name}_jobs_list")
         print(len(brand_new_jobs),"new jobs at",company_name)
         return brand_new_jobs
+
 if __name__ =="__main__":
     main()

@@ -1,8 +1,8 @@
-import requests
 import httpx
 from selectolax.parser import HTMLParser
 from helper import load_download
 import os
+
 def extractor():
     url="https://careers.nutanix.com/en/jobs/?search=Software+Engineer&country=United+States&pagesize=20#results"
     headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:139.0) Gecko/20100101 Firefox/139.0"}
@@ -22,7 +22,7 @@ def extractor():
 
 def main(test=False):
     company_name=os.path.basename(__file__)[:-3]
-    file_path=os.path.join("data",f"{company_name}_jobs_list.json")
+    file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data=extractor()
         load_download.download_json(job_data,f"{company_name}_jobs_list")
