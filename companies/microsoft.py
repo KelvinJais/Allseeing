@@ -3,7 +3,7 @@ import requests
 import json
 import os
 def extractor():
-    url = "https://gcsservices.careers.microsoft.com/search/api/v1/search?lc=United%20States&exp=Students%20and%20graduates&l=en_us&pg=1&pgSz=20&o=Relevance&flt=true"
+    url = "https://gcsservices.careers.microsoft.com/search/api/v1/search?lc=United%20States&exp=Students%20and%20graduates&l=en_us&pg=1&pgSz=20&o=Recent&flt=true"
 
     payload = {}
     headers = {

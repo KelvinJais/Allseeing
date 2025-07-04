@@ -1,0 +1,1 @@
+aws lambda update-function-code --function-name Allseeing --image-uri 854423999074.dkr.ecr.us-east-1.amazonaws.com/allseeing:latest
