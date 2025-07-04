@@ -36,7 +36,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "Pushed to ECR URL: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       - name: Update Lambda Function Code
