@@ -54,13 +54,13 @@ jobs:
           aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME }}
       - name: Download Secrets from S3
         run: |
-          aws s3 cp s3://allseeings3data/creds.py creds.py
+          aws s3 cp s3://bucket-name/secrets.json secrets.json
       - name: Update Lambda Function Configuration
         env:
-          AWS_REGION: us-east-1
+          AWS_REGION: eu-central-1
         run: |
-          jq -c '{Variables: .}' creds.py > creds.py
+          jq -c '{Variables: .}' secrets.json > env_vars.json
           aws lambda update-function-configuration \
           --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing \
-          --environment file://creds.py
-          echo "Lambda environment variables updated from creds.py"
+          --environment file://env_vars.json
+          echo "Lambda environment variables updated from secrets.json"
