@@ -1,9 +1,9 @@
-name: Deploy Lambda on push to master
+name: Deploy Lambda on push to main
 
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
