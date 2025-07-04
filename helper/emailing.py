@@ -1,7 +1,8 @@
-import creds
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
+import os
+
 def format_job_listings_html(data):
     html = '''<html><body><h2>New Job Listings</h2><hr>'''
     for job in data:
@@ -41,6 +42,15 @@ def generate_job_board_email_content(job_data):
     return email_content
 
 def send_email(all_jobs):
+    # not able to run this locally,
+    #if os.environ.get('sender')
+    #with open('env.json') as f:
+    #data = json.load(f)
+
+    sender = os.environ.get('sender')
+    recipient = os.environ.get('recipient') #you can make it for multiple ppl
+    password = os.environ.get('password')
+
     print(all_jobs)
     html_content = generate_job_board_email_content(all_jobs)
     message = MIMEMultipart()
@@ -50,6 +60,6 @@ def send_email(all_jobs):
     message.attach(MIMEText(html_content, 'html'))
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
-        server.login(creds.sender, creds.password)
-        server.sendmail(creds.sender, creds.recipient, message.as_string())
+        server.login(sender, password)
+        server.sendmail(sender, recipient, message.as_string())
 

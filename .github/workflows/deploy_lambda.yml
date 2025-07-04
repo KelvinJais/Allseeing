@@ -54,7 +54,7 @@ jobs:
           aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME }}
       - name: Download Secrets from S3
         run: |
-          aws s3 cp s3://bucket-name/secrets.json secrets.json
+          aws s3 cp s3://allseeings3data/secrets.json secrets.json
       - name: Update Lambda Function Configuration
         env:
           AWS_REGION: eu-central-1
