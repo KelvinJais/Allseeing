@@ -46,11 +46,9 @@ def extractor():
         item={}
         item={"jobId":job.get("bulletFields")[0],
               "title":job.get("title"),
-              "url":job.get("externalPath")
+              "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath")
                                 }
         items[job.get("bulletFields")[0]]=item
-        #key = job['bulletFields'][0]
-        #jobs_hashmap[key] = job
     return items
 
 def hashmap(jobs):

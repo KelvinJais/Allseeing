@@ -2,6 +2,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 import os
+import json
 
 def format_job_listings_html(data):
     html = '''<html><body><h2>New Job Listings</h2><hr>'''
@@ -46,11 +47,16 @@ def send_email(all_jobs):
     #if os.environ.get('sender')
     #with open('env.json') as f:
     #data = json.load(f)
-
-    sender = os.environ.get('sender')
-    recipient = os.environ.get('recipient') #you can make it for multiple ppl
-    password = os.environ.get('password')
-
+    if os.environ.get('sender'):
+        sender = os.environ.get('sender')
+        recipient = os.environ.get('recipient') #you can make it for multiple ppl
+        password = os.environ.get('password')
+    else:
+        with open('secrets.json') as f:
+            data = json.load(f)
+        sender = data['sender']
+        recipient = data['recipient']
+        password = data['password']
     print(all_jobs)
     html_content = generate_job_board_email_content(all_jobs)
     message = MIMEMultipart()

@@ -23,6 +23,6 @@ def main(test=False):
         emailing.send_email(all_jobs)
 
 if __name__ == "__main__":
-    main()
+    main(True)
 
 
