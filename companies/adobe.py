@@ -77,7 +77,6 @@ def main(test=False):
             new_job_data=extractor()
         old_job_data=load_download.load_json(f"{company_name}_jobs_list")
         brand_new_jobs=[]
-
         for job in new_job_data.keys():
             if job not in old_job_data:
                 brand_new_jobs.append(new_job_data[job])
