@@ -1,35 +1,113 @@
-# All Seeing
-This project is to help in job hunting. I was adviced to try to be the first few people to apply to a new postion. So I made this Python script. This script gets data from company job boards and check if there is a new job post, if there is then send an email about the new job. To make the most of this project I recommend you to deploy this to aws lambda and have AWS EventBridge run this script every hour or less.
+# All Seeing: Automated Job Post Alert System
+This project is to help with job hunting. I was advised to try to be the first few people to apply to a new position. So I made this Python script. This script gets data from company job boards and checks if there is a new job post; if there is, then it sends an email about the new job. To make the most of this project, I recommend that you deploy this to AWS Lambda and have AWS EventBridge run this script every hour or less.
 
-## How to run this project
-- Create a python virtual env. The package requirements are given in the requirements.txt
-- A dockerfile is also included if you would like to use docker.
-  
-### Setting up email
-- Since we are using email to let you know about job postings, please set up your email. The emailing function is located at helper/emailing.py. I use smtp.gmail.com to send my email. To set this up for yourself: Create a new google app password and save it to a secrets.json file with this format:
+---
 
-{
-  "sender": your email,
-  "password": your app password
-}
+## Features
 
--Additionally, change the recipient email of your choosing in the helper/emailing.py file
-## Running
-- Once you have completed setting up email functionality you can run the code by typing this in your terminal python -m main
+- **Monitors company job boards** for new postings
+- **Sends email alerts** for newly listed jobs
+- **Easy to extend**: Add new companies with minimal effort
+- **Deployable to AWS Lambda** for automated, scheduled checks (recommended: every hour or less with AWS EventBridge)
 
-## How to contribute
-- To add a new company go to the folder companies and create a file in the format company_name.py
-- The company_name.py file will have two function extractor() and main() add a if __name__=="__main__" for debugging too.
-### Extractor
-- Most of the time the company job boards use api to get the search results for their jobs. Use web developer tool and go to the network section, and look for api calls that give a JSON response with all the job postings. Once you find that out, you can right click and copy as curl. You can go to this link https://curlconverter.com/ to convert the curl command to a python script. Use this to create your extractor tool.
-- The extractor function should return a dictionary in this format:
-  {
-  "<jobid>":{"jobId":<jobid>,
-            "url":<url>,
-            "title:<title>}
-  ....
-  }
-### Main
-- If you have created the extractor function properly then you can just copy the main function code from the other company files (use adobe.py).
+---
+
+## Quick Start
+
+### 1. Environment Setup
+
+- **Python Virtual Environment**
+    ```
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+- **Docker (Optional)**
+    - A `Dockerfile` is included for containerized deployment.
+
+---
+
+### 2. Email Notification Setup
+
+- The script uses email to notify you about new job postings.
+
+#### Configuration:
+
+1. **Google App Password**
+    - [Create a Google App Password](https://support.google.com/accounts/answer/185833?hl=en) for your Gmail account.
+
+2. **`secrets.json` File**
+    - Create a file named `secrets.json` in your project root:
+      ```
+      {
+        "sender": "your_email@gmail.com",
+        "password": "your_app_password"
+      }
+      ```
+
+3. **Recipient Email**
+    - Edit `helper/emailing.py` and set your preferred recipient email address.
+
+---
+
+### 3. Running the Project
+
+After configuring email, run the script: python -m main
+
+---
+
+## Deployment (Recommended)
+
+- **AWS Lambda + EventBridge**
+    - Deploy the script to AWS Lambda.
+    - Use AWS EventBridge to schedule the script to run every hour (or less) for timely notifications.
+    - A GitHub action is included in this repo to containerise and deploy the code to AWS Lambda.
+
+---
+
+## How to Contribute
+
+### Adding a New Company
+
+1. **Create a Company Script**
+    - In the `companies` folder, add a new file: `company_name.py`.
+
+2. **Implement Required Functions**
+    - Each script must define:
+        - `extractor()`: Fetches and parses job postings.
+        - `main()`: Compares the new responses to the previous responses to check for new job postings.
+    - Include:
+        ```
+        if __name__ == "__main__":
+            main()
+        ```
+    - For reference, see `adobe.py`.
+
+#### Writing the Extractor
+
+- Most job boards use APIs to serve job data.
+- **Find the API Endpoint:**
+    - Open browser DevTools → Network tab.
+    - Look for API calls returning job data in JSON format.
+- **Convert API Call to Python:**
+    - Right-click the API call → Copy as cURL.
+    - Use [curlconverter.com](https://curlconverter.com/) to convert cURL to Python.
+- **Extractor Return Format:**
+    ```
+    {
+      <jobid>: {
+        "jobId": <jobid>,
+        "url": <url>,
+        "title": <title>
+      },
+      ...
+    }
+    ```
+
+---
+
+## Notes
+
+- **Debugging:** Use `if __name__ == "__main__":` in your company modules for standalone testing. Run the code: python -m companies.company_name to debug.
 
 
