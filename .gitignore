@@ -1,5 +1,7 @@
 creds.env
 creds.py
-__pychace__/
+**/__pychace__/
 secrets.json
+
+env/
 
