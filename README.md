@@ -52,7 +52,7 @@ This project is to help with job hunting. I was advised to try to be the first f
 
 ### 3. Running the Project
 
-After configuring email, run the script: python -m main
+After configuring email, run the script: ```python -m main```
 
 ---
 
