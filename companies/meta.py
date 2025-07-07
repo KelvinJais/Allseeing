@@ -31,12 +31,12 @@ def extractor():
     response = requests.request("POST", url, headers=headers, data=payload)
     jobs=response.json().get('data').get('job_search_with_featured_jobs').get('all_jobs')
     items={}
-    for job in jobs[:25]:  #only taking the first 20
-        item={"jobId":job.get('id'),
+    for job in jobs[:35]:  #only taking the first 20
+        item={"jobId":str(job.get('id')),
               "title":job.get('title'),
-              #"url":job.get("applyUrl")  meta has no url to it unfortunately
+              "url":"https://www.metacareers.com/jobs/"+str(job.get("id"))
                                 }
-        items[job.get("id")]=item
+        items[item.get("jobId")]=item
     return items
 
 
