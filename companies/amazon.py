@@ -28,18 +28,25 @@ def updated_time_converter(updated_time):
     #hours
     match = re.search(r'(\d+\s*hour)', updated_time)
     extracted_hours = match.group(1) if match else None
+    #minutes
+    match = re.search(r'(\d+\s*minute?)', updated_time)
+    extracted_minutes = match.group(1) if match else None
     if extracted_months:
         match = re.search(r'\d+', extracted_months)
         number = int(match.group()) if match else None
-        return ["month",number]
+        return ["month",number] #4
     if extracted_days:
         match = re.search(r'\d+', extracted_days)
         number = int(match.group()) if match else None
-        return ["day",number]
+        return ["day",number] #3
     if extracted_hours:
         match = re.search(r'\d+', extracted_hours)
         number = int(match.group()) if match else None
-        return ["hour",number]
+        return ["hour",number] #1
+    if extracted_minutes:
+        match = re.search(r'\d+', extracted_minutes)
+        number = int(match.group()) if match else None
+        return ["minute",number]  #0
     return ""
 
 def main(test=False):
@@ -63,6 +70,8 @@ def main(test=False):
             else:
                 old_updated_time=updated_time_converter(old_job_data[job]['updated_time'])
                 new_updated_time=updated_time_converter(new_job_data[job]['updated_time'])
+                if new_updated_time[0]=="minute" and (old_updated_time[0]=="hour" or old_updated_time[0]=="day" or old_updated_time[0]=="month"):
+                    brand_new_jobs.append(new_job_data[job])
                 if new_updated_time[0]=="hour" and (old_updated_time[0]=="day" or old_updated_time[0]=="month"):
                     brand_new_jobs.append(new_job_data[job])
                 elif new_updated_time[0]=="day" and old_updated_time[0]=="month":
