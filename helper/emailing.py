@@ -43,26 +43,23 @@ def generate_job_board_email_content(job_data):
     return email_content
 
 def send_email(all_jobs):
-    # not able to run this locally,
-    #if os.environ.get('sender')
-    #with open('env.json') as f:
-    #data = json.load(f)
+    recipient="kelivn.konnoth@stonybrook.edu"
     if os.environ.get('sender'):
         sender = os.environ.get('sender')
-        recipient = os.environ.get('recipient') #you can make it for multiple ppl
+        #recipient = os.environ.get('recipient') #you can make it for multiple ppl
         password = os.environ.get('password')
     else:
         with open('secrets.json') as f:
             data = json.load(f)
         sender = data['sender']
-        recipient = "kelvin.konnoth@stonybrook.edu"
+        #recipient = data['recipient']
         password = data['password']
     print(all_jobs)
     html_content = generate_job_board_email_content(all_jobs)
     message = MIMEMultipart()
     message['Subject'] = "Project Allseeing"
-    message['From'] ="kelvin4jaison@gmail.com"
-    message['To'] ="kelvin4jaison@gmail.com"
+    message['From'] =sender
+    message['To'] =recipient
     message.attach(MIMEText(html_content, 'html'))
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
