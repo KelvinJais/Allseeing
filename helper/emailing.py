@@ -43,7 +43,7 @@ def generate_job_board_email_content(job_data):
     return email_content
 
 def send_email(all_jobs):
-    recipient="kelivn.konnoth@stonybrook.edu"
+    recipient="kelvin.konnoth@stonybrook.edu"
     if os.environ.get('sender'):
         sender = os.environ.get('sender')
         #recipient = os.environ.get('recipient') #you can make it for multiple ppl
