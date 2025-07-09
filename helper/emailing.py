@@ -55,7 +55,7 @@ def send_email(all_jobs):
         with open('secrets.json') as f:
             data = json.load(f)
         sender = data['sender']
-        recipient = data['recipient']
+        recipient = "kelvin.konnoth@stonybrook.edu"
         password = data['password']
     print(all_jobs)
     html_content = generate_job_board_email_content(all_jobs)

@@ -40,6 +40,7 @@ def updated_time_converter(updated_time):
         match = re.search(r'\d+', extracted_hours)
         number = int(match.group()) if match else None
         return ["hour",number]
+    return ""
 
 def main(test=False):
     company_name=os.path.basename(__file__)[:-3]

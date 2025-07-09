@@ -30,7 +30,6 @@ def extractor():
 
     response = requests.request("POST", url, headers=headers, data=payload)
     jobs=response.json().get('data').get('job_search_with_featured_jobs').get('all_jobs')
-    print(len(jobs))
     items={}
     for job in jobs[:200]:  #only taking the first 20
         item={"jobId":str(job.get('id')),

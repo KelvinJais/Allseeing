@@ -59,8 +59,6 @@ def main(test=False):
         print(len(brand_new_jobs),"new jobs at",company_name)
         return brand_new_jobs
 
-
-
 if __name__=="__main__":
     main()
 
