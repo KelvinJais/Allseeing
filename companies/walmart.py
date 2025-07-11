@@ -1,31 +1,61 @@
+from re import search
 import httpx
 from selectolax.parser import HTMLParser
 from helper import load_download
 import os
 
 def extractor():
-    url="https://careers.walmart.com/results?q=Software%20Engineer&page=1&sort=date&expand=department,brand,type,rate&jobCareerArea=all"
-    headers={"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:139.0) Gecko/20100101 Firefox/139.0"}
-    resp=httpx.get(url,headers=headers)
+    import requests
+
+    url = "https://careers.walmart.com/api/search?q=Software%20Engineer&page=1&sort=date&expand=department,brand,type,rate&jobCareerArea=all&type=jobs"
+
+    payload = {}
+    headers = {
+      'Cookie': 'walcar.ab=fab065a8-cfbf-4b40-92ca-57ab710b3a8e'
+    }
+
+    resp = requests.request("GET", url, headers=headers, data=payload)
     html=HTMLParser(resp.text)
-    search_results=html.css("div.job-listing__headline")
-    print(search_results)
+    search_results=html.css("ul#search-results li")
     items={}
-    """
     for search_result in search_results:
-        item={"title":search_result.css_first("h3").text(),
-              "url":"https://careers.nutanix.com/"+search_result.css_first("a").attributes["href"],
-            "jobId":search_result.css("li.list-inline-item")[2].text().strip().replace(" ", "")
+        title=search_result.css_first("div h4").text()
+        url=search_result.css_first("div h4 a").attrs["href"]
+        jobId=url #using url as jobid
+        posted_date=search_result.css("div")[1].css("span")[1].text()
+        item={"title":title,
+              "url":url,
+            "jobId":jobId,
+            "posted_date":posted_date
               }
         items[item["jobId"]]=item
     return items
-        #print(search_result.css("li.list-inline-item")[2].text())
-        """
-    return
+
+def main(test=False):
+    company_name=os.path.basename(__file__)[:-3]
+    file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
+    if not os.path.exists(file_path):
+        job_data=extractor()
+        load_download.download_json(job_data,f"{company_name}_jobs_list")
+        load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
+    else:
+        if test:
+            new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
+        else:
+            new_job_data=extractor()
+        old_job_data=load_download.load_json(f"{company_name}_jobs_list")
+        brand_new_jobs=[]
+        for job in new_job_data.keys():
+            if job not in old_job_data:
+                brand_new_jobs.append(new_job_data[job])
+        if not test:
+            load_download.download_json(new_job_data,f"{company_name}_jobs_list")
+        print(len(brand_new_jobs),"new jobs at",company_name)
+        return brand_new_jobs
 
 
 if __name__=="__main__":
-    extractor()
+    main()
 
 
 
