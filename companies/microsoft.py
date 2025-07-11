@@ -28,11 +28,11 @@ def extractor():
     jobs=response.json().get("operationResult").get("result").get("jobs")
     items={}
     for job in jobs:
-        item={"jobId":job.get("jobId"),
-              "title":job.get("title"),
-              #"url":job.get("applyUrl") microsoft has no url
-                                }
-        items[job.get("jobId")]=item
+        if str(job.get("jobId")) != "1774001":
+            item={"jobId":str(job.get("jobId")),
+                  "title":job.get("title"),
+                  "url":"https://jobs.careers.microsoft.com/global/en/apply?Job_id="+str(job.get("jobId"))                                }
+            items[item.get("jobId")]=item
     return items
 
 def main(test=False):
