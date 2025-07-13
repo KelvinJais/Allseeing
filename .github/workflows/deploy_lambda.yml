@@ -56,12 +56,12 @@ jobs:
           aws lambda update-function-code \
           --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing \
           --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-          aws lambda update-function-code \
-          --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing_public \
-          --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG_PUBLIC }}
+          #aws lambda update-function-code \
+          #--function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing_public \
+          #--image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG_PUBLIC }}
           echo "Waiting for the update to complete..."
           aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME }}
-          aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME_PUBLIC }}
+          #aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME_PUBLIC }}
       - name: Download Secrets from S3
         run: |
           aws s3 cp s3://allseeings3data/secrets.json secrets.json
