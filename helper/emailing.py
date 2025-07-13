@@ -4,7 +4,7 @@ import smtplib
 import os
 import json
 import boto3
-from update_email_list import download
+from helper.update_email_list import download
 
 def format_job_listings_html(data):
     html = '''<html><body><h2>New Job Listings</h2><hr>'''
