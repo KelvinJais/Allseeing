@@ -35,9 +35,9 @@ def lambda_handler(event, context):
             'body': json.dumps('Private Program completed')
         }
     else:
-        download_s3_folder("allseeings3_public_data")
+        download_s3_folder("allseeings3-public-data")
         main()
-        upload_s3_folder("allseeings3_public_data")
+        upload_s3_folder("allseeings3-public-data")
         return {
             'statusCode': 200,
             'body': json.dumps('Public Program completed')
