@@ -28,30 +28,40 @@ jobs:
         run: |
           aws ecr describe-repositories --region $AWS_REGION --repository-names $ECR_REPOSITORY || aws ecr create-repository --region $AWS_REGION --repository-name $ECR_REPOSITORY
           echo "ECR URL: $ECR_REGISTRY/$ECR_REPOSITORY"
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push image to Amazon ECR for public and private
         env:
           AWS_REGION: us-east-1
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: allseeing
-          IMAGE_TAG: latest
+          IMAGE_TAG_PRIVATE: latest
+          IMAGE_TAG_PUBLIC: latest_public
         run: |
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "Pushed to ECR URL: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-      - name: Update Lambda Function Code
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_PRIVATE .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_PRIVATE
+          echo "Pushed to ECR URL: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_PRIVATE"
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_PUBLIC .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_PUBLIC
+          echo "Pushed to ECR URL: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_PUBLIC"
+      - name: Update Lambda Function Code Private and public
         env:
           AWS_REGION: us-east-1
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: allseeing
           FUNCTION_NAME: Allseeing
+          FUNCTION_NAME_PUBLIC: Allseeing_public
           IMAGE_TAG: latest
+          IMAGE_TAG_PUBLIC: latest
         run: |
           aws lambda update-function-code \
           --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing \
           --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          aws lambda update-function-code \
+          --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing_public \
+          --image-uri ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG_PUBLIC }}
           echo "Waiting for the update to complete..."
           aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME }}
+          aws lambda wait function-updated --function-name ${{ env.FUNCTION_NAME_PUBLIC }}
       - name: Download Secrets from S3
         run: |
           aws s3 cp s3://allseeings3data/secrets.json secrets.json
@@ -62,5 +72,8 @@ jobs:
           jq -c '{Variables: .}' secrets.json > env_vars.json
           aws lambda update-function-configuration \
           --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing \
+          --environment file://env_vars.json
+          aws lambda update-function-configuration \
+          --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing_public \
           --environment file://env_vars.json
           echo "Lambda environment variables updated from secrets.json"

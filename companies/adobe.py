@@ -5,7 +5,6 @@ import os
 
 def extractor():
     url = "https://careers.adobe.com/widgets"
-
     payload = json.dumps({
       "lang": "en_us",
       "deviceType": "desktop",
@@ -52,20 +51,22 @@ def extractor():
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-    jobs=response.json().get("refineSearch").get("data").get("jobs")# title jobId
+    jobs=response.json().get("refineSearch").get("data").get("jobs")
 
     items={}
     for job in jobs:
-        item={"jobId":job.get("jobId"),
+        item={"jobId":str(job.get("jobId")),
               "title":job.get("title"),
               "url":job.get("applyUrl")
-                                }
-        items[job.get("jobId")]=item
+                }
+        items[item.get("jobId")]=item
     return items
 
 def main(test=False):
+    # Getting Company name from the file name
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
+    #Initializing files
     if not os.path.exists(file_path):
         job_data=extractor()
         load_download.download_json(job_data,f"{company_name}_jobs_list")
