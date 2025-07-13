@@ -25,22 +25,24 @@ def upload_s3_folder(bucket_name):
             bucket.upload_file(file_path, s3_path)
 
 def lambda_handler(event, context):
-    download_s3_folder("allseeings3data")
-    main()
-    upload_s3_folder("allseeings3data")
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Program completed')
-    }
+    if event["user"]=="private":
+        print("kelvin's")
+        download_s3_folder("allseeings3data")
+        main()
+        upload_s3_folder("allseeings3data")
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Private Program completed')
+        }
+    else:
+        download_s3_folder("allseeings3_public_data")
+        main()
+        upload_s3_folder("allseeings3_public_data")
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Public Program completed')
+        }
 
-def lambda_handler_public(event,context):
-    download_s3_folder("allseeings3_public_data")
-    main()
-    upload_s3_folder("allseeings3_public_data")
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Public Program completed')
-    }
 
 if __name__=="__main__":
     lambda_handler("","")
