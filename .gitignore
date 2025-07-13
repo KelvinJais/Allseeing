@@ -4,6 +4,6 @@ creds.py
 secrets.json
 email-list.txt
 
-update-email-list.py
+update_email_list.py
 env/
 
