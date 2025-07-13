@@ -3,8 +3,7 @@ import os
 import boto3
 from main import main
 
-def download_s3_folder():
-    bucket_name = 'allseeings3data'
+def download_s3_folder(bucket_name):
     prefix = 'data/'  # For example: 'data/images/'
     os.makedirs('/tmp/data', exist_ok=True)
     s3 = boto3.resource('s3')
@@ -15,8 +14,7 @@ def download_s3_folder():
         target="/tmp/"+obj.key
         bucket.download_file(obj.key, target)
 
-def upload_s3_folder():
-    bucket_name = 'allseeings3data'
+def upload_s3_folder(bucket_name):
     prefix = 'data/'  # For example: 'data/images/'
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket_name)
@@ -27,12 +25,21 @@ def upload_s3_folder():
             bucket.upload_file(file_path, s3_path)
 
 def lambda_handler(event, context):
-    download_s3_folder()
+    download_s3_folder("allseeings3data")
     main()
-    upload_s3_folder()
+    upload_s3_folder("allseeings3data")
     return {
         'statusCode': 200,
         'body': json.dumps('Program completed')
+    }
+
+def lambda_handler_public(event,context):
+    download_s3_folder("allseeings3_public_data")
+    main()
+    upload_s3_folder("allseeings3_public_data")
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Public Program completed')
     }
 
 if __name__=="__main__":
