@@ -4,8 +4,8 @@ from helper import load_download
 import json
 
 def extractor():
-    url = "https://paypal.eightfold.ai/api/pcsx/search?domain=paypal.com&query=software%20engineer%201&location=united%20states&start=0&sort_by=solr&"
-
+    page=0
+    url =f"https://paypal.eightfold.ai/api/pcsx/search?domain=paypal.com&query=software%20engineer%201&location=united%20states&start={page}&sort_by=solr&"
     payload = {}
     headers = {
       'accept': 'application/json, text/plain, */*',
@@ -25,8 +25,15 @@ def extractor():
       'Cookie': '_vs=4749559566357125838:1751735557.7193546:246203503074128067; _vscid=0'
     }
 
+
+
     response = requests.request("GET", url, headers=headers, data=payload)
     jobs=response.json().get('data').get('positions')
+
+    page+=10
+    response_for_second_page= requests.request("GET", url, headers=headers, data=payload)
+    jobs.extend(response_for_second_page.json().get('data').get('positions'))
+
     items={}
     for job in jobs:
         item={"jobId":str(job.get("id")),
