@@ -3,6 +3,8 @@ from email.mime.multipart import MIMEMultipart
 import smtplib
 import os
 import json
+import boto3
+from update_email_list import download
 
 def format_job_listings_html(data):
     html = '''<html><body><h2>New Job Listings</h2><hr>'''
@@ -42,17 +44,23 @@ def generate_job_board_email_content(job_data):
     email_content += '  </body>\n</html>'
     return email_content
 
-def send_email(all_jobs):
-    recipient="kelvin.konnoth@stonybrook.edu"
+def send_email(all_jobs,user):
+
+    if user=="private":
+        recipient="kelvin.konnoth@stonybrook.edu"
+    else:
+        with open("email-list.txt", 'r') as file:
+            recipients = [line.strip() for line in file if line.strip()]
+        recipient=', '.join(recipients)
+
     if os.environ.get('sender'):
         sender = os.environ.get('sender')
-        #recipient = os.environ.get('recipient') #you can make it for multiple ppl
         password = os.environ.get('password')
     else:
+        download()
         with open('secrets.json') as f:
             data = json.load(f)
         sender = data['sender']
-        #recipient = data['recipient']
         password = data['password']
     print(all_jobs)
     html_content = generate_job_board_email_content(all_jobs)

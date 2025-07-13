@@ -2,6 +2,8 @@ creds.env
 creds.py
 **__pychace__/
 secrets.json
+email-list.txt
 
+update-email-list.py
 env/
 

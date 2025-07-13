@@ -17,12 +17,12 @@ def get_all_new_jobs(test):
                 any_new_job=True
     return jobs,any_new_job
 
-def main(test=False):
+def main(test=False,user="private"):
     all_jobs,any_new_job = get_all_new_jobs(test)
     if any_new_job:
-        emailing.send_email(all_jobs)
+        emailing.send_email(all_jobs,user)
 
 if __name__ == "__main__":
-    main()
+    main(True,"public")
 
 

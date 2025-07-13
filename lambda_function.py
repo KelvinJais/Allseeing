@@ -36,7 +36,7 @@ def lambda_handler(event, context):
         }
     else:
         download_s3_folder("allseeings3-public-data")
-        main()
+        main(user="public")
         upload_s3_folder("allseeings3-public-data")
         return {
             'statusCode': 200,
