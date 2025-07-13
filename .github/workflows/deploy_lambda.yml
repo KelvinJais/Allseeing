@@ -51,7 +51,7 @@ jobs:
           FUNCTION_NAME: Allseeing
           FUNCTION_NAME_PUBLIC: Allseeing_public
           IMAGE_TAG: latest
-          IMAGE_TAG_PUBLIC: latest
+          IMAGE_TAG_PUBLIC: latest_public
         run: |
           aws lambda update-function-code \
           --function-name arn:aws:lambda:us-east-1:854423999074:function:Allseeing \
