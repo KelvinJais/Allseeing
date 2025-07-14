@@ -41,14 +41,16 @@ def extractor():
 
     response = requests.request("POST", url, headers=headers, data=payload)
     jobs= response.json()['jobPostings']
+    print(jobs)
     items={}
     for job in jobs:
-        item={}
-        item={"jobId":job.get("bulletFields")[0],
-              "title":job.get("title"),
-              "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath")
-                                }
-        items[job.get("bulletFields")[0]]=item
+        if job.get("title"): # found a job with no details so checking if it exists
+            item={}
+            item={"jobId":job.get("bulletFields")[0],
+                  "title":job.get("title"),
+                  "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath")
+                                    }
+            items[job.get("bulletFields")[0]]=item
     return items
 
 def hashmap(jobs):
@@ -79,6 +81,7 @@ def main(test=False):
             load_download.download_json(new_job_data,f"{company_name}_jobs_list")
         print(len(brand_new_jobs),"new jobs at",company_name)
         return brand_new_jobs
+
 
 if __name__ =="__main__":
     main()
