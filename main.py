@@ -23,6 +23,6 @@ def main(test=False,user="private"):
         emailing.send_email(all_jobs,user)
 
 if __name__ == "__main__":
-    main(True,"public")
+    main(test=False,user="public")
 
 

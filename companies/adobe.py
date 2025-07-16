@@ -4,6 +4,7 @@ import json
 import os
 
 def extractor():
+    print(1/0)
     url = "https://careers.adobe.com/widgets"
     payload = json.dumps({
       "lang": "en_us",

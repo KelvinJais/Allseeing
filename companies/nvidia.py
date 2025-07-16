@@ -41,7 +41,6 @@ def extractor():
 
     response = requests.request("POST", url, headers=headers, data=payload)
     jobs= response.json()['jobPostings']
-    print(jobs)
     items={}
     for job in jobs:
         if job.get("title"): # found a job with no details so checking if it exists
