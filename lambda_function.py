@@ -2,6 +2,7 @@ import json
 import os
 import boto3
 from main import main
+import asyncio
 
 def download_s3_folder(bucket_name):
     prefix = 'data/'  # For example: 'data/images/'
@@ -28,15 +29,16 @@ def lambda_handler(event, context):
     if event["user"]=="private":
         print("kelvin's")
         download_s3_folder("allseeings3data")
-        main()
+        asyncio.run(main())
         upload_s3_folder("allseeings3data")
         return {
             'statusCode': 200,
             'body': json.dumps('Private Program completed')
         }
     else:
+        print("public's")
         download_s3_folder("allseeings3-public-data")
-        main(user="public")
+        asyncio.run(main(user="public"))
         upload_s3_folder("allseeings3-public-data")
         return {
             'statusCode': 200,

@@ -2,9 +2,11 @@ from helper import load_download
 import requests
 import json
 import os
-def extractor():
-    url = "https://www.palantir.com/api/lever/v1/postings?state=published"
+import asyncio
+import aiohttp
 
+async def extractor():
+    url = "https://www.palantir.com/api/lever/v1/postings?state=published"
     payload = {}
     headers = {
       'accept': 'application/json, text/plain, */*',
@@ -22,8 +24,10 @@ def extractor():
       'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
     }
 
-    response = requests.request("GET", url, headers=headers, data=payload)
-    jobs=response.json().get('data')
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers, data=payload) as response:
+            data=await response.json()
+    jobs=data.get('data')
     items={}
     for job in jobs:
         tags=job.get('tags')
@@ -37,18 +41,20 @@ def extractor():
     return items
 
 
-def main(test=False):
+def main(current_jobs,test=False):
+    # Getting Company name from the file name
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
+    #Initializing files
     if not os.path.exists(file_path):
-        job_data=extractor()
+        job_data=current_jobs
         load_download.download_json(job_data,f"{company_name}_jobs_list")
         load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
     else:
         if test:
             new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
         else:
-            new_job_data=extractor()
+            new_job_data=current_jobs
         old_job_data=load_download.load_json(f"{company_name}_jobs_list")
         brand_new_jobs=[]
         for job in new_job_data.keys():
@@ -60,7 +66,6 @@ def main(test=False):
         return brand_new_jobs
 
 
-if __name__=="__main__":
-    main()
-
-
+if __name__ =="__main__":
+    current_jobs=asyncio.run(extractor())
+    main(current_jobs)

@@ -2,7 +2,10 @@ from helper import load_download
 import requests
 import json
 import os
-def extractor():
+import asyncio
+import aiohttp
+
+async def extractor():
     url = "https://api.greenhouse.io/v1/boards/discord/jobs?content=true"
 
     payload = {}
@@ -24,31 +27,33 @@ def extractor():
       'TE': 'trailers'
     }
 
-    response = requests.request("GET", url, headers=headers, data=payload)
-    jobs=response.json().get('jobs')
-    items={}
-    for job in jobs:
-        if job.get('departments')[0].get('name') in ("Product Engineering","Developers","Data Platform","Core Tech Engineering", "Data Science & Engineering"):
-            item={"jobId":str(job.get("id")),
-                  "title":job.get("title"),
-                  "url":job.get("absolute_url"),
-                "updated_time":job.get("updated_at")
-                                    }
-            items[item.get("jobId")]=item
-    return items
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers, data=payload) as response:
+            data = await response.json()
+            jobs=data.get('jobs')
+            items={}
+            for job in jobs:
+                if job.get('departments')[0].get('name') in ("Product Engineering","Developers","Data Platform","Core Tech Engineering", "Data Science & Engineering"):
+                    item={"jobId":str(job.get("id")),
+                          "title":job.get("title"),
+                          "url":job.get("absolute_url"),
+                        "updated_time":job.get("updated_at")
+                                            }
+                    items[item.get("jobId")]=item
+            return items
 
-def main(test=False):
+def main(current_jobs,test=False):
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
-        job_data=extractor()
+        job_data=current_jobs
         load_download.download_json(job_data,f"{company_name}_jobs_list")
         load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
     else:
         if test:
             new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
         else:
-            new_job_data=extractor()
+            new_job_data=current_jobs
         old_job_data=load_download.load_json(f"{company_name}_jobs_list")
         brand_new_jobs=[]
         for job in new_job_data.keys():
@@ -60,5 +65,6 @@ def main(test=False):
         return brand_new_jobs
 
 if __name__=="__main__":
-    main()
+    current_jobs=asyncio.run(extractor())
+    main(current_jobs)
 

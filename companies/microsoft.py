@@ -2,7 +2,10 @@ from helper import load_download
 import requests
 import json
 import os
-def extractor():
+import asyncio
+import aiohttp
+
+async def extractor():
     url = "https://gcsservices.careers.microsoft.com/search/api/v1/search?q=Software%20Engineer&lc=United%20States&exp=Students%20and%20graduates&l=en_us&pg=1&pgSz=20&o=Relevance&flt=true"
     payload = {}
     headers = {
@@ -24,31 +27,35 @@ def extractor():
       'x-correlationid': 'e2f840d6-7794-091d-2393-778719e7c604',
       'x-subcorrelationid': '67e29667-8af7-6873-c650-f04803b8fe0e'
     }
-    response = requests.request("GET", url, headers=headers, data=payload)
-    jobs=response.json().get("operationResult").get("result").get("jobs")
-    items={}
-    for job in jobs:
-        if str(job.get("jobId")) != "1774001": #this particular job postion keeps coming on and off and is trigerring send email so manually removing it out
-            item={"jobId":str(job.get("jobId")),
-                  "title":job.get("title"),
-                  "url":"https://jobs.careers.microsoft.com/global/en/apply?Job_id="+str(job.get("jobId"))
-                  }
-            items[item.get("jobId")]=item
-    return items
 
-def main(test=False):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers, data=payload) as response:
+            data= await response.json()
+            jobs=data.get("operationResult").get("result").get("jobs")
+            items={}
+            for job in jobs:
+                if str(job.get("jobId")) != "1774001": #this particular job postion keeps coming on and off and is trigerring send email so manually removing it out
+                    item={"jobId":str(job.get("jobId")),
+                          "title":job.get("title"),
+                          "url":"https://jobs.careers.microsoft.com/global/en/apply?Job_id="+str(job.get("jobId"))
+                          }
+                    items[item.get("jobId")]=item
+            return items
+
+def main(current_jobs,test=False):
+    # Getting Company name from the file name
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
+    #Initializing files
     if not os.path.exists(file_path):
-        job_data=extractor()
-        print("initializing files") 
+        job_data=current_jobs
         load_download.download_json(job_data,f"{company_name}_jobs_list")
         load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
     else:
         if test:
             new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
         else:
-            new_job_data=extractor()
+            new_job_data=current_jobs
         old_job_data=load_download.load_json(f"{company_name}_jobs_list")
         brand_new_jobs=[]
         for job in new_job_data.keys():
@@ -60,8 +67,6 @@ def main(test=False):
         return brand_new_jobs
 
 
-
-if __name__=="__main__":
-    main()
-
-
+if __name__ =="__main__":
+    current_jobs=asyncio.run(extractor())
+    main(current_jobs)

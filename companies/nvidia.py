@@ -2,10 +2,12 @@ import requests
 import json
 from helper import load_download
 import os
+import time
+import asyncio
+import aiohttp
 
-def extractor():
+async def extractor():
     url = "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs"
-
     payload = json.dumps({
       "appliedFacets": {
         "locationHierarchy1": [
@@ -39,18 +41,20 @@ def extractor():
       'Cookie': 'PLAY_SESSION=8d5d8660808a94f58b7ffd62d7d0b90d076705f1-instance=vps-prod-max9cnjc.prod-vps.pr502.cust.pdx.wd; __cf_bm=NfIdieEtUomq5iB5tCtpucnUn6to3akTHRIVA3Sl5wE-1750796111-1.0.1.1-gjVr3Wl7GkEz6oxJmDOSOxG3LuCSMa0E9t64zBhU5ECnC_GnuXlC.xZWLwHHAVBfYdj1Bfr4uYJs8EiRWsXre8VH7XBAgKh3W37IbPgYeN8; __cflb=02DiuHJZe28xXz6hQKLf1exjNbMDM5uxf8UXrAjS7hD5n; _cfuvid=6h0HO1M407vdL1OC_59LGnHMaw53VYirohrQdfSHC3w-1750796111256-0.0.1.1-604800000; wd-browser-id=49586d05-997b-4713-a014-c15842638df2; wday_vps_cookie=3102514186.53810.0000'
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
-    jobs= response.json()['jobPostings']
-    items={}
-    for job in jobs:
-        if job.get("title"): # found a job with no details so checking if it exists
-            item={}
-            item={"jobId":job.get("bulletFields")[0],
-                  "title":job.get("title"),
-                  "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath")
-                                    }
-            items[job.get("bulletFields")[0]]=item
-    return items
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, data=payload) as response:
+            data=await response.json()
+            jobs= data['jobPostings']
+            items={}
+            for job in jobs:
+                if job.get("title"): # found a job with no details so checking if it exists
+                    item={}
+                    item={"jobId":job.get("bulletFields")[0],
+                          "title":job.get("title"),
+                          "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath")
+                                            }
+                    items[job.get("bulletFields")[0]]=item
+            return items
 
 def hashmap(jobs):
     jobs_hashmap={}
@@ -59,18 +63,20 @@ def hashmap(jobs):
         jobs_hashmap[key] = job
     return jobs_hashmap
 
-def main(test=False):
+def main(current_jobs,test=False):
+    # Getting Company name from the file name
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
+    #Initializing files
     if not os.path.exists(file_path):
-        job_data=extractor()
+        job_data=current_jobs
         load_download.download_json(job_data,f"{company_name}_jobs_list")
         load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
     else:
         if test:
             new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
         else:
-            new_job_data=extractor()
+            new_job_data=current_jobs
         old_job_data=load_download.load_json(f"{company_name}_jobs_list")
         brand_new_jobs=[]
         for job in new_job_data.keys():
@@ -83,4 +89,5 @@ def main(test=False):
 
 
 if __name__ =="__main__":
-    main()
+    current_jobs=asyncio.run(extractor())
+    main(current_jobs)
