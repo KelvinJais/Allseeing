@@ -51,7 +51,7 @@ async def main(test=False,user="private"):
 if __name__ == "__main__":
     #without async 8.8 seconds
     #with async 1.2 seconds bruh!!!!
+    #total time saved with async is from 20 seconds to 7 seconds!!!!
     asyncio.run(main())
-    end=time.time()
 
 

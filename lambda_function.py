@@ -39,6 +39,10 @@ def lambda_handler(event, context):
         print("public's")
         download_s3_folder("allseeings3-public-data")
         asyncio.run(main(user="public"))
+        # List all files (excluding directories) in the current folder
+        files = [f for f in os.listdir('.') if os.path.isfile(f)]
+        for file in files:
+            print(file)
         upload_s3_folder("allseeings3-public-data")
         return {
             'statusCode': 200,
@@ -47,6 +51,6 @@ def lambda_handler(event, context):
 
 
 if __name__=="__main__":
-    event={"user":"private"}
+    event={"user":"public"}
     lambda_handler(event,"")
 
