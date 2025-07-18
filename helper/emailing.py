@@ -43,14 +43,13 @@ def generate_job_board_email_content(job_data):
 
     email_content += '  </body>\n</html>'
     return email_content
-from pathlib import Path
+
 def send_email(all_jobs,user):
-    for file in Path('.').iterdir():
-        if file.is_file():
-            print(file.name)
+
     if user=="private":
         recipient="kelvin.konnoth@stonybrook.edu"
     else:
+        download()
         with open("email-list.txt", 'r') as file:
             recipients = [line.strip() for line in file if line.strip()]
         recipient=', '.join(recipients)
@@ -58,7 +57,6 @@ def send_email(all_jobs,user):
         sender = os.environ.get('sender')
         password = os.environ.get('password')
     else:
-        download()
         with open('secrets.json') as f:
             data = json.load(f)
         sender = data['sender']
