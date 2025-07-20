@@ -91,10 +91,10 @@ def main(current_jobs,test=False):
         for job in new_job_data.keys():
             if job not in old_job_data:
                 brand_new_jobs.append(new_job_data[job])
-                #old_job_data.append(new_job_data[job]) For Aggregating
+                old_job_data[job]=new_job_data[job]
         if not test:
-            load_download.download_json(new_job_data,f"{company_name}_jobs_list")
-            #load_download.download_json(old_job_data,f"{company_name}_jobs_list")
+            #load_download.download_json(new_job_data,f"{company_name}_jobs_list")
+            load_download.download_json(old_job_data,f"{company_name}_jobs_list")
         print(len(brand_new_jobs),"new jobs at",company_name)
         return brand_new_jobs
 
