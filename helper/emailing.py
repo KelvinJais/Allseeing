@@ -50,7 +50,7 @@ def send_email(all_jobs,user):
         recipient="kelvin.konnoth@stonybrook.edu"
     else:
         download()
-        with open("email-list.txt", 'r') as file:
+        with open("/tmp/email-list.txt", 'r') as file:
             recipients = [line.strip() for line in file if line.strip()]
         recipient=', '.join(recipients)
     if os.environ.get('sender'):

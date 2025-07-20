@@ -71,6 +71,9 @@ async def extractor():
         items[str(job.get("id"))]=item
     return items
 
+# Trying out aggregating. It gets the new jobs and adds it to the old jobs and saves it all.
+# Pros: Some company like paypal has an issue where they constantly remove and add the same jobs. triggering a new job alert every time
+# Cons: We will miss any updated jobs. ie, jobs that came out before and is not reposted.
 def main(current_jobs,test=False):
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
@@ -88,8 +91,10 @@ def main(current_jobs,test=False):
         for job in new_job_data.keys():
             if job not in old_job_data:
                 brand_new_jobs.append(new_job_data[job])
+                #old_job_data.append(new_job_data[job]) For Aggregating
         if not test:
             load_download.download_json(new_job_data,f"{company_name}_jobs_list")
+            #load_download.download_json(old_job_data,f"{company_name}_jobs_list")
         print(len(brand_new_jobs),"new jobs at",company_name)
         return brand_new_jobs
 
