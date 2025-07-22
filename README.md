@@ -9,6 +9,21 @@ This project is to help with job hunting. I was advised to try to be the first f
 - **Sends email alerts** for newly listed jobs
 - **Easy to extend**: Add new companies with minimal effort
 - **Deployable to AWS Lambda** for automated, scheduled checks (recommended: every hour or less with AWS EventBridge)
+  
+## Companies Tracked
+
+- Adobe
+- Amazon
+- Datadog
+- Discord
+- Meta
+- Microsoft
+- Nutanix
+- Nvidia
+- Oracle
+- Palantir
+- Paypal
+- Walmart
 
 ---
 
