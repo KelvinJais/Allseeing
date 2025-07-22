@@ -24,6 +24,8 @@ This project is to help with job hunting. I was advised to try to be the first f
 - Palantir
 - Paypal
 - Walmart
+- Apple
+- Figma
   
 ---
 
