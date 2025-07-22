@@ -6,30 +6,10 @@ import asyncio
 import aiohttp
 
 async def extractor():
-    url = "https://gcsservices.careers.microsoft.com/search/api/v1/search?q=Software%20Engineer&lc=United%20States&exp=Students%20and%20graduates&l=en_us&pg=1&pgSz=20&o=Relevance&flt=true"
-    payload = {}
-    headers = {
-      'accept': 'application/json, text/plain, */*',
-      'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-      'authorization': 'Bearer undefined',
-      'cache-control': 'no-cache',
-      'origin': 'https://jobs.careers.microsoft.com',
-      'pragma': 'no-cache',
-      'priority': 'u=1, i',
-      'referer': 'https://jobs.careers.microsoft.com/',
-      'sec-ch-ua': '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"macOS"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-site',
-      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
-      'x-correlationid': 'e2f840d6-7794-091d-2393-778719e7c604',
-      'x-subcorrelationid': '67e29667-8af7-6873-c650-f04803b8fe0e'
-    }
+    url = "https://gcsservices.careers.microsoft.com/search/api/v1/search?q=Software%20Engineer&lc=United%20States&l=en_us&pg=1&pgSz=20&o=Recent&flt=true"
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers, data=payload) as response:
+        async with session.get(url) as response:
             data= await response.json()
             jobs=data.get("operationResult").get("result").get("jobs")
             items={}
@@ -39,6 +19,7 @@ async def extractor():
                           "title":job.get("title"),
                           "url":"https://jobs.careers.microsoft.com/global/en/apply?Job_id="+str(job.get("jobId"))
                           }
+                    print(item)
                     items[item.get("jobId")]=item
             return items
 
