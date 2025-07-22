@@ -48,6 +48,7 @@ This project is to help with job hunting. I was advised to try to be the first f
     └── emailing.py
     └── load_download.py
     └── update_email_list.py
+
 ---
 
 ## Quick Start
