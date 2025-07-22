@@ -24,8 +24,9 @@ This project is to help with job hunting. I was advised to try to be the first f
 - Palantir
 - Paypal
 - Walmart
-## Folder Structure
-📁 .
+- 
+<details> <summary>📁 Folder Structure</summary>
+  📁 .
 ├── Dockerfile
 ├── README.md
 ├── lambda_function.py
@@ -48,7 +49,7 @@ This project is to help with job hunting. I was advised to try to be the first f
     └── emailing.py
     └── load_download.py
     └── update_email_list.py
-
+</details>
 ---
 
 ## Quick Start
