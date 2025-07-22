@@ -24,7 +24,30 @@ This project is to help with job hunting. I was advised to try to be the first f
 - Palantir
 - Paypal
 - Walmart
-
+## Folder Structure
+📁 .
+├── Dockerfile
+├── README.md
+├── lambda_function.py
+├── main.py
+├── requirements.txt
+├── 📁 companies
+│   └── adobe.py
+│   └── amazon.py
+│   └── datadog.py
+│   └── discord.py
+│   └── meta.py
+│   └── microsoft.py
+│   └── nutanix.py
+│   └── nvidia.py
+│   └── oracle.py
+│   └── palantir.py
+│   └── paypal.py
+│   └── walmart.py
+└── 📁 helper
+    └── emailing.py
+    └── load_download.py
+    └── update_email_list.py
 ---
 
 ## Quick Start
