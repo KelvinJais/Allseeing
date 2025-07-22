@@ -41,7 +41,7 @@ async def main(test=False,user="private"):
             company_name = filename[:-3]  # Remove '.py'
             full_module_name = f"{COMPANY_FOLDER}.{company_name}"
             module = importlib.import_module(full_module_name)
-            jobs[company_name]= module.main(current_jobs[i])
+            jobs[company_name]= module.main(current_jobs[i],test=test)
             i+=1
             if jobs[company_name]:
                 any_new_job=True

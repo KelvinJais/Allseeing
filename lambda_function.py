@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     if event["user"]=="private":
         print("kelvin's")
         download_s3_folder("allseeings3data")
-        asyncio.run(main())
+        asyncio.run(main(test=event["test"]))
         upload_s3_folder("allseeings3data")
         return {
             'statusCode': 200,
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
     else:
         print("public's")
         download_s3_folder("allseeings3-public-data")
-        asyncio.run(main(user="public"))
+        asyncio.run(main(user="public",test=event["test"]))
         upload_s3_folder("allseeings3-public-data")
         return {
             'statusCode': 200,
@@ -47,6 +47,6 @@ def lambda_handler(event, context):
 
 
 if __name__=="__main__":
-    event={"user":"public"}
+    event={"user":"public","test":True}
     lambda_handler(event,"")
 
