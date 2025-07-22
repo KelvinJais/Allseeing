@@ -45,14 +45,12 @@ def generate_job_board_email_content(job_data):
     return email_content
 
 def send_email(all_jobs,user):
-
     if user=="private":
-        recipient="kelvin.konnoth@stonybrook.edu"
+        recipients=["kelvin.konnoth@stonybrook.edu"]
     else:
         download()
         with open("/tmp/email-list.txt", 'r') as file:
             recipients = [line.strip() for line in file if line.strip()]
-        recipient=', '.join(recipients)
     if os.environ.get('sender'):
         sender = os.environ.get('sender')
         password = os.environ.get('password')
@@ -66,10 +64,10 @@ def send_email(all_jobs,user):
     message = MIMEMultipart()
     message['Subject'] = "Project Allseeing"
     message['From'] =sender
-    message['To'] =recipient
+    message['To'] =', '.join(recipients)
     message.attach(MIMEText(html_content, 'html'))
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
         server.login(sender, password)
-        server.sendmail(sender, recipient, message.as_string())
+        server.sendmail(sender, recipients, message.as_string())
 
