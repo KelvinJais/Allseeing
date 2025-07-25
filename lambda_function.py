@@ -1,3 +1,6 @@
+'''
+This is the file that is to be run on aws lambda
+'''
 import json
 import os
 import boto3

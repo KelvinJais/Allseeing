@@ -8,8 +8,8 @@ COMPANY_FOLDER = "companies"
 
 async def main(test=False,user="private"):
     '''
-    The first for loop runs all the extractor functions asynchronous from all the companies in the company folder
-    Second for loop runs all the main function from the companies in the main folder. the main function includes the logic of compaisions
+    The first loop runs all the extractor functions asynchronously from all the companies in the company folder
+    Second loop runs all the main function from the companies in the main folder. the main function includes the logic of compaisions
     '''
     any_new_job=False
     jobs = {}
