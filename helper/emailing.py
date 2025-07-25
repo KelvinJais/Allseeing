@@ -6,20 +6,6 @@ import json
 import boto3
 from helper.update_email_list import download
 
-def format_job_listings_html(data):
-    html = '''<html><body><h2>New Job Listings</h2><hr>'''
-    for job in data:
-        html += f"""
-        <div style='margin-bottom:20px;'>
-            <h3 style='color:#2a7ae2;'>{job['title']}</h3>
-            <p><strong>Posted Date:</strong> {job['posted_date']}</p>
-            <p><strong>Last Updated:</strong> {job['updated_time']} ago</p>
-            <p><a href='{job['job_path']}' style='color:#1a0dab;'>Apply Here</a></p>
-            <hr>
-        </div>
-        """
-    html += '</body></html>'
-    return html
 def generate_job_board_email_content(job_data):
     # Filter out companies with no jobs
     filtered_job_data = {company: jobs for company, jobs in job_data.items() if jobs}
@@ -37,8 +23,7 @@ def generate_job_board_email_content(job_data):
         for job in jobs:
             title = job.get('title', 'No Title')
             url = job.get('url', '#')
-            posted_date = job.get('posted_date', 'N/A')
-            email_content += f'<li>\n  <a href="{url}" style="text-decoration:none;color:#2874A6; font-weight:bold;">{title}</a><br>\n  <small>Posted: {posted_date}</small>\n</li>\n'
+            email_content += f'<li>\n  <a href="{url}" style="text-decoration:none;color:#2874A6; font-weight:bold;">{title}</a><br>\n</li>\n'
         email_content += '</ul>\n'
 
     email_content += '  </body>\n</html>'
@@ -46,7 +31,7 @@ def generate_job_board_email_content(job_data):
 
 def send_email(all_jobs,user):
     if user=="private":
-        recipients=["kelvin.konnoth@stonybrook.edu"]# Change this to your personal email
+        recipients=["kelvin.konnoth@stonybrook.edu"] # Change this to your personal email
     else:
         download()
         with open("/tmp/email-list.txt", 'r') as file:
