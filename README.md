@@ -63,7 +63,7 @@ This project is to help with job hunting. I was advised to try to be the first f
       ```
 
 3. **Recipient Email**
-    - Edit `helper/emailing.py` and set your preferred recipient email address.
+    - Edit `helper/emailing.py` send_email() fucnction and set your preferred recipient email address.
 
 ---
 
