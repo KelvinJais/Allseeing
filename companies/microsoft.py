@@ -17,9 +17,8 @@ async def extractor():
                 if str(job.get("jobId")) != "1774001": #this particular job postion keeps coming on and off and is trigerring send email so manually removing it out
                     item={"jobId":str(job.get("jobId")),
                           "title":job.get("title"),
-                          "url":"https://jobs.careers.microsoft.com/global/en/apply?Job_id="+str(job.get("jobId"))
+                          "url":"https://jobs.careers.microsoft.com/global/en/search?q="+str(job.get("jobId"))
                           }
-                    print(item)
                     items[item.get("jobId")]=item
             return items
 
