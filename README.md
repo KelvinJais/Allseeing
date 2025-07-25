@@ -42,7 +42,6 @@ This project is to help with job hunting. I was advised to try to be the first f
 - **Docker (Optional)**
     - A `Dockerfile` is included for containerized deployment.
 
----
 
 ### 2. Email Notification Setup
 
@@ -65,7 +64,6 @@ This project is to help with job hunting. I was advised to try to be the first f
 3. **Recipient Email**
     - Edit `helper/emailing.py` send_email() fucnction and set your preferred recipient email address.
 
----
 
 ### 3. Running the Project
 
