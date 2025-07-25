@@ -46,7 +46,7 @@ def generate_job_board_email_content(job_data):
 
 def send_email(all_jobs,user):
     if user=="private":
-        recipients=["kelvin.konnoth@stonybrook.edu"]
+        recipients=["kelvin.konnoth@stonybrook.edu"]# Change this to your personal email
     else:
         download()
         with open("/tmp/email-list.txt", 'r') as file:
