@@ -42,13 +42,13 @@ async def main(test=False,user="private"):
                 any_new_job=True
     if any_new_job:
         emailing.send_email(jobs,user)
-        if user=="private":
-            data_for_website={}
-            data_for_website["date"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            data_for_website["jobs"]=jobs
-            with open("/tmp/data_for_website.json", "w") as f:
-                json.dump(data_for_website, f, indent=4)
-            upload_data_for_website()
+    if user=="private":
+        data_for_website={}
+        data_for_website["date"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        data_for_website["jobs"]=jobs
+        with open("/tmp/data_for_website.json", "w") as f:
+            json.dump(data_for_website, f, indent=4)
+        upload_data_for_website()
 
 if __name__ == "__main__":
     asyncio.run(main())
