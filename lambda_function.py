@@ -56,6 +56,6 @@ def lambda_handler(event, context):
 
 
 if __name__=="__main__":
-    event={"user":"public","test":"True"}
+    event={"user":"private","test":"False"}
     lambda_handler(event,"")
 
