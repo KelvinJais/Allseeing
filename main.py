@@ -42,11 +42,10 @@ async def main(test=False,user="private"):
                 any_new_job=True
     if any_new_job:
         emailing.send_email(jobs,user)
-        if user=="public":  #change later to public
+        if user=="public":
             data_for_website={}
             data_for_website["date"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             data_for_website["jobs"]=jobs
-            # Write the dictionary to a JSON file
             with open("data_for_website.json", "w") as f:
                 json.dump(data_for_website, f, indent=4)
             upload_data_for_website()
