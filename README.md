@@ -34,6 +34,7 @@ This project is to help with job hunting. I was advised to try to be the first f
 ### 1. Environment Setup
 
 - **Python Virtual Environment**
+  Uses python 3.11
     ```
     python3 -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
