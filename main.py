@@ -12,7 +12,7 @@ def upload_data_for_website():
     bucket_name="allseeing-website"
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket_name)
-    bucket.upload_file("data_for_website.json","data_for_website.json")
+    bucket.upload_file("/tmp/data_for_website.json","data_for_website.json")
     print("data_for_website has been uploaded")
 
 async def main(test=False,user="private"):
@@ -46,7 +46,7 @@ async def main(test=False,user="private"):
             data_for_website={}
             data_for_website["date"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             data_for_website["jobs"]=jobs
-            with open("data_for_website.json", "w") as f:
+            with open("/tmp/data_for_website.json", "w") as f:
                 json.dump(data_for_website, f, indent=4)
             upload_data_for_website()
 
