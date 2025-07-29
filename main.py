@@ -42,7 +42,7 @@ async def main(test=False,user="private"):
                 any_new_job=True
     if any_new_job:
         emailing.send_email(jobs,user)
-    if user=="private":
+    if user=="public":
         data_for_website={}
         data_for_website["date"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         data_for_website["jobs"]=jobs
