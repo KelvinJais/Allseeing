@@ -18,6 +18,7 @@ This project is to help with job hunting. I was advised to try to be the first f
 - Discord
 - Meta
 - Microsoft
+- Netflix
 - Nutanix
 - Nvidia
 - Oracle
