@@ -58,6 +58,4 @@ async function fetchJobs() {
 
 fetchJobs();
 
-// Optional: refresh every 12 hours (43200000 ms)
-setInterval(fetchJobs, 43200000);
 
