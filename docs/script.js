@@ -15,8 +15,7 @@ async function fetchJobs() {
     // For each company
     for (const company of Object.keys(jobs)) {
       const jobList = jobs[company];
-      if (!jobList.length) continue; // Skip if no jobs
-
+      if (!jobList || !Array.isArray(jobList) || jobList.length === 0) continue;
       // Create section for company
       const section = document.createElement('section');
       section.className = "company";
