@@ -73,12 +73,17 @@ After configuring email, run the script: ```python3 -m main```
 
 ---
 
-## Deployment (Recommended)
+## Architecture Overview
 
-- **AWS Lambda + EventBridge**
-    - Deploy the script to AWS Lambda.
-    - Use AWS EventBridge to schedule the script to run every hour (or less) for timely notifications.
-    - A GitHub action is included in this repo to containerise and deploy the code to AWS Lambda.
+![System Architecture](assets/Allseeing_architecture.png)
+
+**How it Works:**
+
+1. **Scheduled Execution:** Amazon EventBridge triggers the AWS Lambda function at regular intervals.
+2. **Job Comparison & Notification:** Lambda compares the newly scraped jobs with previous data from S3 and sends email alerts if there are new jobs.
+3. **Website Data:** Lambda uploads the current job data to an S3 bucket, which is used to power a static website (e.g., via GitHub Pages).
+4. **Continuous Deployment:** Code changes pushed to GitHub trigger GitHub Actions, which Dockerize and deploy the application to AWS (via ECR and Lambda updates).
+5. **Error Monitoring:** CloudWatch scans Lambda logs for 'ERROR'. On detection, an SNS topic sends a notification email with error details.
 
 ---
 
