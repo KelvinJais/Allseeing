@@ -6,6 +6,8 @@ import asyncio
 import aiohttp
 
 async def extractor():
+    #print(f"Initiate {os.path.basename(__file__)[:-3]} extraction")
+
     url = "https://careers.adobe.com/widgets"
     payload = json.dumps({
       "lang": "en_us",
@@ -63,6 +65,8 @@ async def extractor():
                       "url":job.get("applyUrl")
                         }
                 items[item.get("jobId")]=item
+
+           # print(f"{os.path.basename(__file__)[:-3]} extraction complete")
             return items
 
 def main(current_jobs,test=False):

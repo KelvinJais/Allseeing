@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: Arial, sans-serif;
+}
+header, p, h2 {
+  text-align: center;
+}
+p {
+  max-width: 600px;
+  margin: 0 auto 1em;
+  font-size: 1.1rem;
+}
+main {
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto 3em;
+}
+section.company {
+  margin-bottom: 2em;
+}
+section.company h3 {
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.2em;
+  margin-bottom: 0.5em;
+  color: #bb86fc;
+}
+ul.jobs {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+ul.jobs li {
+  margin-bottom: 0.4em;
+}
+ul.jobs li a {
+  color: #03dac6;
+  text-decoration: none;
+}
+ul.jobs li a:hover {
+  text-decoration: underline;
+}
+
+/* New style: clicked links */
+ul.jobs li a.clicked {
+  color: #888888; /* different color for clicked links */
+  text-decoration: line-through;
+}

@@ -23,8 +23,9 @@ async def main(test=False,user="private"):
     any_new_job=False
     jobs = {}
     tasks=[]
+    companies_with_bug=("paypal","netflix")
     for filename in os.listdir(COMPANY_FOLDER):
-        if filename.endswith(".py") and filename != "__init__.py" :
+        if filename.endswith(".py") and filename != "__init__.py" and filename[:-3] not in companies_with_bug:
             company_name = filename[:-3]  # Remove '.py'
             full_module_name = f"{COMPANY_FOLDER}.{company_name}"
             module = importlib.import_module(full_module_name)
@@ -32,7 +33,7 @@ async def main(test=False,user="private"):
     current_jobs=await asyncio.gather(*tasks)
     i=0
     for filename in os.listdir(COMPANY_FOLDER):
-        if filename.endswith(".py") and filename != "__init__.py" :
+        if filename.endswith(".py") and filename != "__init__.py" and filename[:-3] not in companies_with_bug:
             company_name = filename[:-3]  # Remove '.py'
             full_module_name = f"{COMPANY_FOLDER}.{company_name}"
             module = importlib.import_module(full_module_name)

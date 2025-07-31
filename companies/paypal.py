@@ -40,6 +40,7 @@ async def extractor():
       'x-csrf-token': 'ImMyMjBiMDVhMWQ5YWYzNmI3ZTdmM2E3YzVmMDVmMTEzM2NiMmMwYzEi.G0rv-w.NnOrOOCDOSHZQ70lR0TR57-bPS4',
       'Cookie': '_vs=4749559566357125838:1751735557.7193546:246203503074128067; _vscid=0'
     }
+    headers={}
 
     async with aiohttp.ClientSession() as session:
         pages=range(6)
@@ -47,20 +48,6 @@ async def extractor():
     jobs=[]
     for response in responses:
         jobs.extend(response.get('data').get('positions'))
-    #response= requests.request("GET", url.format(0), headers=headers, data=payload)
-    #jobs=response.json().get('data').get('positions')
-    '''
-    jobs=[]
-    tasks=[]
-    for i in range(6):#getting first 6 pages
-        url =f"https://paypal.eightfold.ai/api/pcsx/search?domain=paypal.com&query=software%20engineer%201&location=united%20states&start={i*10}&sort_by=solr&"
-        tasks.append(requests.request("GET", url, headers=headers, data=payload))
-        #response= requests.request("GET", url, headers=headers, data=payload)
-        #jobs.extend(response.json().get('data').get('positions'))
-    responses=await asyncio.gather(*tasks)
-    for response in responses:
-        jobs.extend(response.json().get('data').get('positions'))
-    '''
     items={}
     for job in jobs:
         item={"jobId":str(job.get("id")),
@@ -101,6 +88,6 @@ def main(current_jobs,test=False):
 
 if __name__=="__main__":
     current_jobs=asyncio.run(extractor())
-    main(current_jobs)
+    #main(current_jobs)
 
 
