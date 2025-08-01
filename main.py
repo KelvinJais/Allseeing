@@ -23,7 +23,7 @@ async def main(test=False,user="private"):
     any_new_job=False
     jobs = {}
     tasks=[]
-    companies_with_bug=("paypal","netflix")
+    companies_with_bug=()
     for filename in os.listdir(COMPANY_FOLDER):
         if filename.endswith(".py") and filename != "__init__.py" and filename[:-3] not in companies_with_bug:
             company_name = filename[:-3]  # Remove '.py'
