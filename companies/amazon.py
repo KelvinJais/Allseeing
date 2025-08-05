@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime, timezone
 from helper import load_download
 import re
 import os
@@ -11,13 +12,15 @@ async def extractor():
         async with session.get(url) as response:
             jobs=await response.json()
             all_jobs={}
+            detected_time = datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
             for job in jobs['jobs']:
                 all_jobs[job.get('id')]={ 
                     'jobId': job.get('id'),
                     'url': "https://amazon.jobs"+job.get('job_path'),
                     'title': job.get('title'),
                     'updated_time': job.get('updated_time'),
-                    'posted_date': job.get('posted_date')
+                    'posted_date': job.get('posted_date'),
+                    "detected":detected_time
                 }
             return all_jobs
 

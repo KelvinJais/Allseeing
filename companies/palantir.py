@@ -1,4 +1,5 @@
 from helper import load_download
+from datetime import datetime,timezone
 import requests
 import json
 import os
@@ -29,13 +30,15 @@ async def extractor():
             data=await response.json()
     jobs=data.get('data')
     items={}
+    detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
     for job in jobs:
         tags=job.get('tags')
         for tag in tags:
             if tag=="Category:New Graduates":
                 item={"jobId":job.get("id"),
                       "title":job.get("text"),
-                      "url":job.get("urls").get("apply")
+                      "url":job.get("urls").get("apply"),
+                        "detected":detected_time
                       }
                 items[job.get("id")]=item
     return items

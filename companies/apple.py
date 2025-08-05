@@ -1,4 +1,5 @@
 from helper import load_download
+from datetime import datetime,timezone
 import requests
 import json
 import os
@@ -33,12 +34,15 @@ async def extractor():
             data=await response.json()
             jobs=data.get("res").get("searchResults")
             items={}
+            detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
                 match = re.search(r'-(.*)', str(job.get("id")))
                 id_without_code=match.group(1)  # Output: 200609565
                 item={"jobId":str(job.get("id")),
                       "title":job.get("postingTitle"),
-                      "url":"https://jobs.apple.com/en-us/details/"+id_without_code                        }
+                      "url":"https://jobs.apple.com/en-us/details/"+id_without_code,
+                      "detected":detected_time
+                      }
                 items[item.get("jobId")]=item
             return items
 

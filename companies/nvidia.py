@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime,timezone
 import json
 from helper import load_download
 import os
@@ -46,12 +47,14 @@ async def extractor():
             data=await response.json()
             jobs= data['jobPostings']
             items={}
+            detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
                 if job.get("title"): # found a job with no details so checking if it exists
                     item={}
                     item={"jobId":job.get("bulletFields")[0],
                           "title":job.get("title"),
-                          "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath")
+                          "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath"),
+                            "detected":detected_time
                                             }
                     items[job.get("bulletFields")[0]]=item
             return items

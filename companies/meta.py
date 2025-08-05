@@ -1,4 +1,5 @@
 from helper import load_download
+from datetime import datetime,timezone
 import requests
 import json
 import os
@@ -33,10 +34,12 @@ async def extractor():
             data = await response.json(content_type=None)
             jobs=data.get('data').get('job_search_with_featured_jobs').get('all_jobs')
             items={}
+            detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:  #only taking the first 20
                 item={"jobId":str(job.get('id')),
                       "title":job.get('title'),
-                      "url":"https://www.metacareers.com/jobs/"+str(job.get("id"))
+                      "url":"https://www.metacareers.com/jobs/"+str(job.get("id")),
+                    "detected":detected_time
                                         }
                 items[item.get("jobId")]=item
             return items

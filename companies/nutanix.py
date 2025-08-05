@@ -1,4 +1,5 @@
 import httpx
+from datetime import datetime,timezone
 from selectolax.parser import HTMLParser
 from helper import load_download
 import os
@@ -14,10 +15,12 @@ async def extractor():
             html=HTMLParser(data)
             search_results=html.css("div.card-body")
             items={}
+            detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for search_result in search_results:
                 item={"title":search_result.css_first("h3").text(),
                       "url":"https://careers.nutanix.com/"+search_result.css_first("a").attributes["href"],
-                    "jobId":search_result.css("li.list-inline-item")[2].text().strip().replace(" ", "")
+                    "jobId":search_result.css("li.list-inline-item")[2].text().strip().replace(" ", ""),
+                    "detected":detected_time
                       }
                 items[item["jobId"]]=item
             return items

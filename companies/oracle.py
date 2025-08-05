@@ -1,4 +1,5 @@
 from helper import load_download
+from datetime import datetime,timezone
 import requests
 import json
 import os
@@ -11,10 +12,12 @@ async def extractor():
             data=await response.json()
             jobs=data.get('items')[0].get('requisitionList')
             items={}
+            detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
                 item={"jobId":str(job.get("Id")),
                       "title":job.get("Title"),
-                      "url":"https://careers.oracle.com/en/sites/jobsearch/job/"+str(job.get("Id"))
+                      "url":"https://careers.oracle.com/en/sites/jobsearch/job/"+str(job.get("Id")),
+                    "detected":detected_time
                                         }
                 items[str(item.get("jobId"))]=item
             return items

@@ -1,4 +1,5 @@
 from re import search
+from datetime import datetime,timezone
 import httpx
 from selectolax.parser import HTMLParser
 from helper import load_download
@@ -21,6 +22,7 @@ async def extractor():
             html=HTMLParser(data)
             search_results=html.css("ul#search-results li")
             items={}
+            detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for search_result in search_results:
                 title=search_result.css_first("div h4").text()
                 url=search_result.css_first("div h4 a").attrs["href"]
@@ -29,7 +31,8 @@ async def extractor():
                 item={"title":title,
                       "url":url,
                     "jobId":jobId,
-                    "posted_date":posted_date
+                    "posted_date":posted_date,
+                    "detected":detected_time
                       }
                 items[item["jobId"]]=item
             return items

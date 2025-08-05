@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime,timezone
 import os
 from helper import load_download
 import json
@@ -49,11 +50,13 @@ async def extractor():
     for response in responses:
         jobs.extend(response.get('data').get('positions'))
     items={}
+    detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
     for job in jobs:
         item={"jobId":str(job.get("id")),
               "displayId":str(job.get("displayJobId")),
               "title":job.get("name"),
-              "url":"https://paypal.eightfold.ai"+job.get("positionUrl")
+              "url":"https://paypal.eightfold.ai"+job.get("positionUrl"),
+                "detected":detected_time
                                 }
         items[str(job.get("id"))]=item
     return items
