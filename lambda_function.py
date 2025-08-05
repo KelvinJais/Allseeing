@@ -6,6 +6,7 @@ import os
 import boto3
 from main import main
 import asyncio
+from main import clear_website_data
 
 def download_s3_folder(bucket_name):
     prefix = 'data/'  # For example: 'data/images/'
@@ -29,25 +30,27 @@ def upload_s3_folder(bucket_name):
             bucket.upload_file(file_path, s3_path)
 
 def lambda_handler(event, context):
-    if event["user"]=="private":
-        print("kelvin's")
+    if event["clear_data"]=="True":
+        clear_website_data()
+    elif event["user"]=="private":
+        print("Private Run")
         download_s3_folder("allseeings3data")
         if event["test"]=="True":
-            asyncio.run(main(test=True))
+            asyncio.run(main(test=True,send_email=(event["send_email"]=="True")))
         else:
-            asyncio.run(main())
+            asyncio.run(main(send_email=(event["send_email"]=="True")))
         upload_s3_folder("allseeings3data")
         return {
             'statusCode': 200,
             'body': json.dumps('Private Program completed')
         }
     else:
-        print("public's")
+        print("Public Run")
         download_s3_folder("allseeings3-public-data")
         if event["test"]=="True":
-            asyncio.run(main(user="public",test=True))
+            asyncio.run(main(user="public",test=True,send_email=(event["send_email"]=="True")))
         else:
-            asyncio.run(main(user="public"))
+            asyncio.run(main(user="public",send_email=(event["send_email"]=="True")))
         upload_s3_folder("allseeings3-public-data")
         return {
             'statusCode': 200,
@@ -56,6 +59,16 @@ def lambda_handler(event, context):
 
 
 if __name__=="__main__":
-    event={"user":"private","test":"False"}
+    # Default Send Email private no test
+    event={
+        "send_email":"True",
+        "clear_data":"False",
+        "user":"private",
+        "test":"False"
+            }
+
+    clear_data_event={
+        "clear_data":"True",
+                     }
     lambda_handler(event,"")
 

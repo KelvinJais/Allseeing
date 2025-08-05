@@ -8,6 +8,7 @@ import asyncio
 import boto3
 
 COMPANY_FOLDER = "companies"
+# Possible error if the data_for_website is never initialised then we will get an error
 def get_json_from_s3(bucket_name="allseeing-website", key="data_for_website.json"):
     s3_client = boto3.client('s3')
     response = s3_client.get_object(Bucket=bucket_name, Key=key)
@@ -30,7 +31,20 @@ def update_website(jobs):
         json.dump(data, f, indent=4)
     upload_data_for_website()
 
-async def main(test=False,user="private"):
+def clear_website_data():
+    data = {}
+    data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+    data["jobs"]={}
+    for filename in os.listdir(COMPANY_FOLDER):
+        if filename.endswith(".py") and filename != "__init__.py" and filename[:-3]:
+            company_name = filename[:-3]  # Remove '.py'
+            data["jobs"][company_name]= []
+    with open("/tmp/data_for_website.json", "w") as f:
+        json.dump(data, f, indent=4)
+    print("website data cleared")
+    upload_data_for_website()
+
+async def main(test=False,user="private",send_email=True):
     '''
     :param test True or False, if True then instead of fetching the data it will get data through a text file
     :param private of public. Meant to run for different intervals. public sends to an email list and can be configured to run every 6 hours or your choice. Whereas private is meant to run for a few individuals more frequently
@@ -59,13 +73,17 @@ async def main(test=False,user="private"):
             i+=1
             if jobs[company_name]:
                 any_new_job=True
-    if any_new_job:
+    if not send_email:
+        print("Email not being sent")
+    if any_new_job and send_email:
         emailing.send_email(jobs,user)
-    if user=="private":
+        print("Email Sent")
+    if user=="private" and not test:
         update_website(jobs)
 
     return jobs
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    #asyncio.run(main())
+    clear_website_data()
 
