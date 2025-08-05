@@ -6,7 +6,13 @@ import time
 import json
 import asyncio
 import boto3
+
 COMPANY_FOLDER = "companies"
+def get_json_from_s3(bucket_name="allseeing-website", key="data_for_website.json"):
+    s3_client = boto3.client('s3')
+    response = s3_client.get_object(Bucket=bucket_name, Key=key)
+    content = response['Body'].read()
+    return json.loads(content)
 
 def upload_data_for_website():
     bucket_name="allseeing-website"
@@ -15,10 +21,19 @@ def upload_data_for_website():
     bucket.upload_file("/tmp/data_for_website.json","data_for_website.json")
     print("data_for_website has been uploaded")
 
+def update_website(jobs):
+    data=get_json_from_s3()
+    data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+    for key in data["jobs"].keys():
+        data["jobs"][key].extend(jobs[key])
+    with open("/tmp/data_for_website.json", "w") as f:
+        json.dump(data, f, indent=4)
+    upload_data_for_website()
+
 async def main(test=False,user="private"):
     '''
-    test : True or False, if True then instead of fetching the data it will get data through a text file
-    user: private of public. Meant to run for different intervals. public sends to an email list and can be configured to run every 6 hours or your choice. Whereas private is meant to run for a few individuals more frequently
+    :param test True or False, if True then instead of fetching the data it will get data through a text file
+    :param private of public. Meant to run for different intervals. public sends to an email list and can be configured to run every 6 hours or your choice. Whereas private is meant to run for a few individuals more frequently
 
     The first loop runs all the extractor functions asynchronously from all the companies in the company folder
     Second loop runs all the main function from the companies in the main folder. the main function includes the logic of compaisions
@@ -47,14 +62,10 @@ async def main(test=False,user="private"):
     if any_new_job:
         emailing.send_email(jobs,user)
     if user=="private":
-        data_for_website={}
-        data_for_website["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-        data_for_website["jobs"]=jobs
-        with open("/tmp/data_for_website.json", "w") as f:
-            json.dump(data_for_website, f, indent=4)
-        upload_data_for_website()
+        update_website(jobs)
+
+    return jobs
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
