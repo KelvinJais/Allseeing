@@ -26,7 +26,7 @@ def update_website(jobs):
     data=get_json_from_s3()
     data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
     for key in data["jobs"].keys():
-        data["jobs"][key].extend(jobs[key])
+        data["jobs"][key][:0] = jobs[key] # extending to the beginning
     with open("/tmp/data_for_website.json", "w") as f:
         json.dump(data, f, indent=4)
     upload_data_for_website()
@@ -80,7 +80,6 @@ async def main(test=False,user="private",send_email=True):
         print("Email Sent")
     if user=="private" and not test:
         update_website(jobs)
-
     return jobs
 
 if __name__ == "__main__":
