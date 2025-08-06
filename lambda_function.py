@@ -70,5 +70,5 @@ if __name__=="__main__":
     clear_data_event={
         "clear_data":"True",
                      }
-    lambda_handler(event,"")
-
+    #lambda_handler(event,"")
+    lambda_handler(clear_data_event,"")
