@@ -64,10 +64,11 @@ async def extractor():
             for job in jobs:
                 item={"jobId":str(job.get("jobId")),
                       "title":job.get("title"),
-                      "url":job.get("applyUrl"),
+                      "url":"https://careers.adobe.com/us/en/search-results?keywords="+str(job.get("jobId")),
                       "detected": detected_time
                         }
                 items[item.get("jobId")]=item
+                print(item)
            # print(f"{os.path.basename(__file__)[:-3]} extraction complete")
             return items
 
