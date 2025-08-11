@@ -40,10 +40,11 @@ async def extractor():
                 id_without_code=match.group(1)  # Output: 200609565
                 item={"jobId":str(job.get("id")),
                       "title":job.get("postingTitle"),
-                      "url":"https://jobs.apple.com/en-us/details/"+id_without_code,
+                      "url":"https://jobs.apple.com/en-us/details/"+str(job.get("id")),
                       "detected":detected_time
                       }
                 items[item.get("jobId")]=item
+                print(item)
             return items
 
 def main(current_jobs,test=False):
@@ -73,4 +74,4 @@ def main(current_jobs,test=False):
 
 if __name__ =="__main__":
     current_jobs=asyncio.run(extractor())
-    main(current_jobs)
+    #main(current_jobs)
