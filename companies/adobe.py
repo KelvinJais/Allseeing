@@ -68,7 +68,6 @@ async def extractor():
                       "detected": detected_time
                         }
                 items[item.get("jobId")]=item
-                print(item)
            # print(f"{os.path.basename(__file__)[:-3]} extraction complete")
             return items
 
