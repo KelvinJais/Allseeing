@@ -31,6 +31,31 @@ def update_website(jobs):
         json.dump(data, f, indent=4)
     upload_data_for_website()
 
+def update_website_remove_old_jobs():
+    data=get_json_from_s3()
+    # Remove jobs that are 3 days older
+    now = datetime.now(timezone.utc)
+    cutoff = now.timestamp() - 3 * 24 * 60 * 60  # 3 days in seconds
+
+    for company, jobs in data.get("jobs", {}).items():
+        filtered_jobs = []
+        for job in jobs:
+            detected_str = job.get("detected")
+            if detected_str:
+                try:
+                    detected_dt = datetime.strptime(detected_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                except ValueError:
+                    # If detected is not in expected format, skip this job
+                    continue
+                if detected_dt.timestamp() >= cutoff:
+                    filtered_jobs.append(job)
+        data["jobs"][company] = filtered_jobs
+
+    with open("/tmp/data_for_website.json", "w") as f:
+    #with open("updated.json", "w") as f:
+        json.dump(data, f, indent=4)
+    upload_data_for_website()
+
 def clear_website_data():
     data = {}
     data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
@@ -84,5 +109,6 @@ async def main(test=False,user="private",send_email=True):
 
 if __name__ == "__main__":
     #asyncio.run(main())
-    clear_website_data()
+    #clear_website_data()
+    update_website_remove_old_jobs()
 
