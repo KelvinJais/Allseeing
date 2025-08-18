@@ -27,10 +27,11 @@ async def extractor():
                 if title_tag and link_tag:
                     item = {
                         "title": title_tag.text(),
-                        "url": "https://www.google.com" + link_tag.attributes["href"],
-                        "jobId":"https://www.google.com" + link_tag.attributes["href"],
+                        "url": "https://www.google.com/about/careers/applications/" + link_tag.attributes["href"],
+                        "jobId":"https://www.google.com/about/careers/applications/" + link_tag.attributes["href"],
                         "detected": detected_time
                     }
+                    print(item)
                     items[item["jobId"]] = item
             return items
         #print(search_result.css("li.list-inline-item")[2].text())
@@ -61,4 +62,4 @@ def main(current_jobs,test=False):
 
 if __name__ =="__main__":
     current_jobs=asyncio.run(extractor())
-    main(current_jobs)
+    #main(current_jobs)
