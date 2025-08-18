@@ -25,8 +25,14 @@ def upload_data_for_website():
 def update_website(jobs):
     data=get_json_from_s3()
     data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-    for key in data["jobs"].keys():
-        data["jobs"][key][:0] = jobs[key] # extending to the beginning
+    for key, new_jobs in jobs.items():
+        # Skip if there are no new jobs for this company
+        if not new_jobs:
+            continue
+        # Initialize missing company list
+        data["jobs"].setdefault(key, [])
+        # Prepend new jobs to the beginning
+        data["jobs"][key][:0] = new_jobs
     with open("/tmp/data_for_website.json", "w") as f:
         json.dump(data, f, indent=4)
     upload_data_for_website()

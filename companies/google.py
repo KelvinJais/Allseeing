@@ -31,7 +31,6 @@ async def extractor():
                         "jobId":"https://www.google.com/about/careers/applications/" + link_tag.attributes["href"],
                         "detected": detected_time
                     }
-                    print(item)
                     items[item["jobId"]] = item
             return items
         #print(search_result.css("li.list-inline-item")[2].text())
