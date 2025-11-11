@@ -24,71 +24,29 @@ async def extractor():
                 }
             return all_jobs
 
-def updated_time_converter(updated_time):
-    match = re.search(r"(\d+\smonth)", updated_time)
-    extracted_months = match.group(1) if match else None
-    #days
-    match = re.search(r"(\d+\sday)", updated_time)
-    extracted_days= match.group(1) if match else None
-    #hours
-    match = re.search(r'(\d+\s*hour)', updated_time)
-    extracted_hours = match.group(1) if match else None
-    #minutes
-    match = re.search(r'(\d+\s*minute?)', updated_time)
-    extracted_minutes = match.group(1) if match else None
-    if extracted_months:
-        match = re.search(r'\d+', extracted_months)
-        number = int(match.group()) if match else None
-        return ["month",number] #4
-    if extracted_days:
-        match = re.search(r'\d+', extracted_days)
-        number = int(match.group()) if match else None
-        return ["day",number] #3
-    if extracted_hours:
-        match = re.search(r'\d+', extracted_hours)
-        number = int(match.group()) if match else None
-        return ["hour",number] #1
-    if extracted_minutes:
-        match = re.search(r'\d+', extracted_minutes)
-        number = int(match.group()) if match else None
-        return ["minute",number]  #0
-    return ""
 
 def main(current_jobs,test=False):
     company_name=os.path.basename(__file__)[:-3]
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
-        job_data=current_jobs
+        job_data= current_jobs
         load_download.download_json(job_data,f"{company_name}_jobs_list")
         load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
     else:
         if test:
             new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
         else:
-            new_job_data=current_jobs
+            new_job_data= current_jobs
         old_job_data=load_download.load_json(f"{company_name}_jobs_list")
         brand_new_jobs=[]
-
         for job in new_job_data.keys():
-            if job not in old_job_data.keys():
+            if job not in old_job_data:
                 brand_new_jobs.append(new_job_data[job])
-            else:
-                old_updated_time=updated_time_converter(old_job_data[job]['updated_time'])
-                new_updated_time=updated_time_converter(new_job_data[job]['updated_time'])
-                if new_updated_time[0]=="minute" and (old_updated_time[0]=="hour" or old_updated_time[0]=="day" or old_updated_time[0]=="month"):
-                    brand_new_jobs.append(new_job_data[job])
-                if new_updated_time[0]=="hour" and (old_updated_time[0]=="day" or old_updated_time[0]=="month"):
-                    brand_new_jobs.append(new_job_data[job])
-                elif new_updated_time[0]=="day" and old_updated_time[0]=="month":
-                    brand_new_jobs.append(new_job_data[job])
-                elif new_updated_time[0]==old_updated_time[0] and new_updated_time[1]<old_updated_time[1]:
-                    brand_new_jobs.append(new_job_data[job])
+                old_job_data[job]=new_job_data[job]
         if not test:
-            load_download.download_json(new_job_data,"amazon_jobs_list")
-        print(len(brand_new_jobs),"new jobs at amazon")
-        if test:
-            for job in brand_new_jobs:
-                print(job)
+            #load_download.download_json(new_job_data,f"{company_name}_jobs_list")
+            load_download.download_json(old_job_data,f"{company_name}_jobs_list")
+        print(len(brand_new_jobs),"new jobs at",company_name)
         return brand_new_jobs
 
 
