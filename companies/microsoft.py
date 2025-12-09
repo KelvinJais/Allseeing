@@ -7,18 +7,19 @@ import asyncio
 import aiohttp
 
 async def extractor():
-    url = "https://gcsservices.careers.microsoft.com/search/api/v1/search?q=Software%20Engineer&lc=United%20States&l=en_us&pg=1&pgSz=20&o=Recent&flt=true"
+    url = "https://apply.careers.microsoft.com/api/pcsx/search?domain=microsoft.com&query=software%20engineer&location=United%20States&start=0&filter_seniority=Entry&sort_by=timestamp"
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             data= await response.json()
-            jobs=data.get("operationResult").get("result").get("jobs")
+            jobs=data.get("data").get("positions")
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
+            print(len(jobs),"jobs found")
             for job in jobs:
-                item={"jobId":str(job.get("jobId")),
-                "title":job.get("title"),
-                "url":"https://jobs.careers.microsoft.com/global/en/search?q="+str(job.get("jobId")),
+                item={"jobId":str(job.get("id")),
+                "title":job.get("name"),
+                "url":"https://apply.careers.microsoft.com/"+str(job.get("positionUrl")),
                 "detected":detected_time
                 }
                 items[item.get("jobId")]=item
