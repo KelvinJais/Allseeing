@@ -19,7 +19,7 @@ async def extractor():
             for job in jobs:
                 item={"jobId":str(job.get("id")),
                 "title":job.get("name"),
-                "url":"https://apply.careers.microsoft.com/"+str(job.get("positionUrl")),
+                "url":"https://apply.careers.microsoft.com"+str(job.get("positionUrl")),
                 "detected":detected_time
                 }
                 items[item.get("jobId")]=item
