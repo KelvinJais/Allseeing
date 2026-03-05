@@ -5,6 +5,9 @@ from helper import load_download
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://www.google.com/about/careers/applications/jobs/results/?q=%22Software%20Engineer%22&location=United%20States&target_level=MID&target_level=EARLY"
@@ -25,18 +28,18 @@ async def extractor():
                 job_id = search_result.attributes.get("jsdata", "")
                 
                 if title_tag and link_tag:
-                    item = {
+                    item = ensure_job(_COMPANY, {
                         "title": title_tag.text(),
                         "url": "https://www.google.com/about/careers/applications/" + link_tag.attributes["href"],
-                        "jobId":"https://www.google.com/about/careers/applications/" + link_tag.attributes["href"],
+                        "jobId": "https://www.google.com/about/careers/applications/" + link_tag.attributes["href"],
                         "detected": detected_time
-                    }
+                    })
                     items[item["jobId"]] = item
             return items
         #print(search_result.css("li.list-inline-item")[2].text())
 #Aggregate
 def main(current_jobs,test=False):
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data= current_jobs

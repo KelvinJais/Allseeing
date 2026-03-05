@@ -5,6 +5,9 @@ import json
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://api.greenhouse.io/v1/boards/discord/jobs?content=true"
@@ -36,17 +39,18 @@ async def extractor():
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
                 if job.get('departments')[0].get('name') in ("Product Engineering","Developers","Data Platform","Core Tech Engineering", "Data Science & Engineering"):
-                    item={"jobId":str(job.get("id")),
-                          "title":job.get("title"),
-                          "url":job.get("absolute_url"),
-                        "updated_time":job.get("updated_at"),
-                        "detected":detected_time
-                                            }
-                    items[item.get("jobId")]=item
+                    item = ensure_job(_COMPANY, {
+                        "jobId": str(job.get("id")),
+                        "title": job.get("title"),
+                        "url": job.get("absolute_url"),
+                        "updated_time": job.get("updated_at"),
+                        "detected": detected_time
+                    })
+                    items[item.get("jobId")] = item
             return items
 
 def main(current_jobs,test=False):
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data=current_jobs

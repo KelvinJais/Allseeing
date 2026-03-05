@@ -6,6 +6,9 @@ from helper import load_download
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://www.tesla.com/careers/search/?region=5&site=US&query=Software%20Engineer&type=fulltime"  # <-- Replace with the page URL you are scraping
@@ -24,7 +27,7 @@ async def extractor():
                 # Job Title
                 a_tag = search_result.css_first("a.style_TitleLink__PepSM")
                 title = a_tag.text(strip=True)
-                job_url = "yourcompany" + a_tag.attributes["href"]
+                job_url = "https://www.tesla.com" + a_tag.attributes["href"]
                 # Location
                 location_tag = search_result.css_first("li.style_ListResultItemSublistLocation__dLo4G strong")
                 location = location_tag.text(strip=True) if location_tag else ""
@@ -40,22 +43,18 @@ async def extractor():
 
                 # Attempt to grab job ID from URL or fallback
                 job_id = a_tag.attributes["href"].split('-')[-1] if "href" in a_tag.attributes else str(hash(title + location))
-                item = {
+                item = ensure_job(_COMPANY, {
                     "title": title,
                     "url": job_url,
                     "location": location,
-                    "department": department,
-                    "type": job_type,
                     "jobId": job_id,
                     "detected": detected_time
-                }
+                })
                 items[item["jobId"]] = item
-                print(item)
             return items
         #print(search_result.css("li.list-inline-item")[2].text())
 def main(current_jobs,test=False):
-    # Getting Company name from the file name
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     #Initializing files
     if not os.path.exists(file_path):

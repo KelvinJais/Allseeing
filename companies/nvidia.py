@@ -6,6 +6,9 @@ import os
 import time
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs"
@@ -49,14 +52,14 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
-                if job.get("title"): # found a job with no details so checking if it exists
-                    item={}
-                    item={"jobId":job.get("bulletFields")[0],
-                          "title":job.get("title"),
-                          "url":"https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath"),
-                            "detected":detected_time
-                                            }
-                    items[job.get("bulletFields")[0]]=item
+                if job.get("title"):
+                    item = ensure_job(_COMPANY, {
+                        "jobId": job.get("bulletFields")[0],
+                        "title": job.get("title"),
+                        "url": "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite/"+job.get("externalPath"),
+                        "detected": detected_time
+                    })
+                    items[item["jobId"]] = item
             return items
 
 def hashmap(jobs):
@@ -67,8 +70,7 @@ def hashmap(jobs):
     return jobs_hashmap
 
 def main(current_jobs,test=False):
-    # Getting Company name from the file name
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     #Initializing files
     if not os.path.exists(file_path):

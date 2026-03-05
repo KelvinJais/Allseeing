@@ -115,17 +115,42 @@ After configuring email, run the script: ```python3 -m main```
 - **Convert API Call to Python:**
     - Right-click the API call → Copy as cURL.
     - Use [curlconverter.com](https://curlconverter.com/) to convert cURL to Python.
-- **Extractor Return Format:**
-    ```
-    {
-      <jobid>: {
-        "jobId": <jobid>,
-        "url": <url>,
-        "title": <title>
-      },
-      ...
-    }
-    ```
+- **Extractor Return Format:**  
+  Each extractor returns a **dict mapping jobId (string) to a job object**.  
+  Job objects must follow the **canonical job schema** below so the website and dashboard get a consistent structure.
+
+#### Canonical Job Schema
+
+- **Required fields** (every job must have these):
+  - `jobId` (string) – unique id for the job
+  - `title` (string)
+  - `url` (string) – link to the job posting
+  - `detected` (string) – ISO8601 UTC timestamp, e.g. `2024-01-01T00:00:00Z`
+
+- **Recommended optional fields:**
+  - `source` (string) – company identifier, e.g. `"amazon"`, `"meta"` (set automatically if using `schemas.ensure_job()`)
+  - `company` (string) – display name
+  - `location` (string)
+  - `posted_date`, `updated_time` (string) – when available from the API
+
+Use `schemas.ensure_job(company_name, job_dict)` to normalize each job (sets `source`, coerces `jobId` to string).  
+Example return from an extractor:
+
+```
+{
+  "<jobid>": {
+    "jobId": "<jobid>",
+    "title": "...",
+    "url": "...",
+    "detected": "2024-01-01T00:00:00Z",
+    "source": "amazon",
+    "location": "...",
+    "posted_date": "...",
+    "updated_time": "..."
+  },
+  ...
+}
+```
 
 ---
 

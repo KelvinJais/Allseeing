@@ -5,6 +5,9 @@ import json
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://explore.jobs.netflix.net/api/apply/v2/jobs?domain=netflix.com&microsite=netflix.com&start=0&num=10&exclude_pid=790304048633&query=Software%20Engineer&location=United%20States&pid=790304269505&domain=netflix.com&sort_by=new&microsite=netflix.com&triggerGoButton=false"
@@ -21,17 +24,17 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
-                item={"jobId":str(job.get("id")),
-                      "title":job.get("name"),
-                      "url":"https://explore.jobs.netflix.net/careers/search?pid="+str(job.get("id")),
-                    "detected":detected_time
-                        }
-                items[item.get("jobId")]=item
+                item = ensure_job(_COMPANY, {
+                    "jobId": str(job.get("id")),
+                    "title": job.get("name"),
+                    "url": "https://explore.jobs.netflix.net/careers/search?pid="+str(job.get("id")),
+                    "detected": detected_time
+                })
+                items[item.get("jobId")] = item
             return items
 
-#aggregating
 def main(current_jobs,test=False):
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data= current_jobs

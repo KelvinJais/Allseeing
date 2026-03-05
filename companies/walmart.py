@@ -6,6 +6,9 @@ from helper import load_download
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     import requests
@@ -24,22 +27,22 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for search_result in search_results:
-                title=search_result.css_first("div h4").text()
-                url=search_result.css_first("div h4 a").attrs["href"]
-                jobId=url #using url as jobid
-                posted_date=search_result.css("div")[1].css("span")[1].text()
-                item={"title":title,
-                      "url":url,
-                    "jobId":jobId,
-                    "posted_date":posted_date,
-                    "detected":detected_time
-                      }
-                items[item["jobId"]]=item
+                title = search_result.css_first("div h4").text()
+                url = search_result.css_first("div h4 a").attrs["href"]
+                jobId = url
+                posted_date = search_result.css("div")[1].css("span")[1].text()
+                item = ensure_job(_COMPANY, {
+                    "title": title,
+                    "url": url,
+                    "jobId": jobId,
+                    "posted_date": posted_date,
+                    "detected": detected_time
+                })
+                items[item["jobId"]] = item
             return items
 
 def main(current_jobs,test=False):
-    # Getting Company name from the file name
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     #Initializing files
     if not os.path.exists(file_path):

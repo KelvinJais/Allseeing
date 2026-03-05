@@ -6,6 +6,9 @@ import json
 import time
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 
 async def get_page(session, url, headers, payload):
@@ -52,20 +55,20 @@ async def extractor():
     items={}
     detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
     for job in jobs:
-        item={"jobId":str(job.get("id")),
-              "displayId":str(job.get("displayJobId")),
-              "title":job.get("name"),
-              "url":"https://paypal.eightfold.ai"+job.get("positionUrl"),
-                "detected":detected_time
-                                }
-        items[str(job.get("id"))]=item
+        item = ensure_job(_COMPANY, {
+            "jobId": str(job.get("id")),
+            "title": job.get("name"),
+            "url": "https://paypal.eightfold.ai"+job.get("positionUrl"),
+            "detected": detected_time
+        })
+        items[item.get("jobId")] = item
     return items
 
 # Trying out aggregating. It gets the new jobs and adds it to the old jobs and saves it all.
 # Pros: Some company like paypal has an issue where they constantly remove and add the same jobs. triggering a new job alert every time
 # Cons: We will miss any updated jobs. ie, jobs that came out before and is not reposted.
 def main(current_jobs,test=False):
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data= current_jobs

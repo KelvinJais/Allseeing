@@ -5,6 +5,9 @@ import json
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://www.palantir.com/api/lever/v1/postings?state=published"
@@ -32,21 +35,22 @@ async def extractor():
     items={}
     detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
     for job in jobs:
-        tags=job.get('tags')
+        tags = job.get('tags')
         for tag in tags:
-            if tag=="Category:New Graduates":
-                item={"jobId":job.get("id"),
-                      "title":job.get("text"),
-                      "url":job.get("urls").get("apply"),
-                        "detected":detected_time
-                      }
-                items[job.get("id")]=item
+            if tag == "Category:New Graduates":
+                item = ensure_job(_COMPANY, {
+                    "jobId": job.get("id"),
+                    "title": job.get("text"),
+                    "url": job.get("urls").get("apply"),
+                    "detected": detected_time
+                })
+                items[item.get("jobId")] = item
+                break
     return items
 
 
 def main(current_jobs,test=False):
-    # Getting Company name from the file name
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     #Initializing files
     if not os.path.exists(file_path):

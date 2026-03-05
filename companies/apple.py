@@ -6,6 +6,9 @@ import os
 import asyncio
 import aiohttp
 import re
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def get_page(session, url, headers, payload):
     async with session.post(url, headers=headers, data=payload) as response:
@@ -93,19 +96,17 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
-                match = re.search(r'-(.*)', str(job.get("id")))
-                id_without_code=match.group(1)  # Output: 200609565
-                item={"jobId":str(job.get("id")),
-                      "title":job.get("postingTitle"),
-                      "url":"https://jobs.apple.com/en-us/details/"+str(job.get("id")),
-                      "detected":detected_time
-                      }
-                items[item.get("jobId")]=item
+                item = ensure_job(_COMPANY, {
+                    "jobId": str(job.get("id")),
+                    "title": job.get("postingTitle"),
+                    "url": "https://jobs.apple.com/en-us/details/"+str(job.get("id")),
+                    "detected": detected_time
+                })
+                items[item.get("jobId")] = item
             return items
 
-#Aggregate
 def main(current_jobs,test=False):
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data= current_jobs

@@ -5,6 +5,9 @@ import json
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://www.metacareers.com/graphql"
@@ -36,18 +39,18 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:  #only taking the first 20
-                item={"jobId":str(job.get('id')),
-                      "title":job.get('title'),
-                      "url":"https://www.metacareers.com/jobs/"+str(job.get("id")),
-                    "detected":detected_time
-                                        }
-                items[item.get("jobId")]=item
+                item = ensure_job(_COMPANY, {
+                    "jobId": str(job.get('id')),
+                    "title": job.get('title'),
+                    "url": "https://www.metacareers.com/jobs/"+str(job.get("id")),
+                    "detected": detected_time
+                })
+                items[item.get("jobId")] = item
             return items
 
 
 def main(current_jobs,test=False):
-    # Getting Company name from the file name
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     #Initializing files
     if not os.path.exists(file_path):

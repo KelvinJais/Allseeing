@@ -5,6 +5,9 @@ from helper import load_download
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url="https://careers.nutanix.com/en/jobs/?search=Software+Engineer&country=United+States&pagesize=20#results"
@@ -17,17 +20,17 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for search_result in search_results:
-                item={"title":search_result.css_first("h3").text(),
-                      "url":"https://careers.nutanix.com/"+search_result.css_first("a").attributes["href"],
-                    "jobId":search_result.css("li.list-inline-item")[2].text().strip().replace(" ", ""),
-                    "detected":detected_time
-                      }
-                items[item["jobId"]]=item
+                item = ensure_job(_COMPANY, {
+                    "title": search_result.css_first("h3").text(),
+                    "url": "https://careers.nutanix.com/"+search_result.css_first("a").attributes["href"],
+                    "jobId": search_result.css("li.list-inline-item")[2].text().strip().replace(" ", ""),
+                    "detected": detected_time
+                })
+                items[item["jobId"]] = item
             return items
         #print(search_result.css("li.list-inline-item")[2].text())
 def main(current_jobs,test=False):
-    # Getting Company name from the file name
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     #Initializing files
     if not os.path.exists(file_path):

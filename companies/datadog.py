@@ -5,6 +5,9 @@ import json
 import os
 import asyncio
 import aiohttp
+from schemas import ensure_job
+
+_COMPANY = os.path.basename(__file__)[:-3]
 
 async def extractor():
     url = "https://gk6e3zbyuntvc5dap.a1.typesense.net/multi_search?x-typesense-api-key=1Hwq7hntXp211hKvRS3CSI2QSU7w2gFm"
@@ -35,18 +38,19 @@ async def extractor():
             items={}
             detected_time=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
             for job in jobs:
-                a_job=job.get('document')
-                item={"jobId":a_job.get("id"), #data dog has id, job_id and internal_job_id 
-                      "title":a_job.get("title"),
-                      "url":a_job.get("absolute_url"),
-                    "detected":detected_time
-                                        }
-                items[item.get("jobId")]=item
+                a_job = job.get('document')
+                item = ensure_job(_COMPANY, {
+                    "jobId": a_job.get("id"),
+                    "title": a_job.get("title"),
+                    "url": a_job.get("absolute_url"),
+                    "detected": detected_time
+                })
+                items[item.get("jobId")] = item
 
             return items
 
 def main(current_jobs,test=False):
-    company_name=os.path.basename(__file__)[:-3]
+    company_name = _COMPANY
     file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
     if not os.path.exists(file_path):
         job_data=current_jobs
