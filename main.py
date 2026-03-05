@@ -6,6 +6,7 @@ import time
 import json
 import asyncio
 import boto3
+from schemas import ensure_job
 
 COMPANY_FOLDER = "companies"
 # Possible error if the data_for_website is never initialised then we will get an error
@@ -23,6 +24,10 @@ def upload_data_for_website():
     print("data_for_website has been uploaded")
 
 def update_website(jobs):
+    """
+    jobs: dict[company_name, list[job_dict]] where each job_dict has the canonical schema
+    (jobId, title, url, detected, source; optional: location, posted_date, updated_time).
+    """
     data=get_json_from_s3()
     data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
     for key, new_jobs in jobs.items():
@@ -38,14 +43,15 @@ def update_website(jobs):
     upload_data_for_website()
 
 def update_website_remove_old_jobs():
+    """Remove jobs older than 3 days from website data. Expects data['jobs'] to be dict of list[job_dict] with canonical schema (detected field)."""
     data=get_json_from_s3()
     # Remove jobs that are 3 days older
     now = datetime.now(timezone.utc)
     cutoff = now.timestamp() - 3 * 24 * 60 * 60  # 3 days in seconds
 
-    for company, jobs in data.get("jobs", {}).items():
+    for company, jobs_list in data.get("jobs", {}).items():
         filtered_jobs = []
-        for job in jobs:
+        for job in jobs_list:
             detected_str = job.get("detected")
             if detected_str:
                 try:
@@ -77,11 +83,9 @@ def clear_website_data():
 
 async def main(test=False,user="private",send_email=True):
     '''
-    :param test True or False, if True then instead of fetching the data it will get data through a text file
-    :param private of public. Meant to run for different intervals. public sends to an email list and can be configured to run every 6 hours or your choice. Whereas private is meant to run for a few individuals more frequently
-
-    The first loop runs all the extractor functions asynchronously from all the companies in the company folder
-    Second loop runs all the main function from the companies in the main folder. the main function includes the logic of compaisions
+    Runs all company extractors, diffs for new jobs, optionally emails and updates website.
+    Returns jobs: dict[company_name, list[job_dict]] where each job_dict has the canonical
+    schema (jobId, title, url, detected, source; optional: location, posted_date, updated_time).
     '''
     any_new_job=False
     jobs = {}
@@ -100,7 +104,8 @@ async def main(test=False,user="private",send_email=True):
             company_name = filename[:-3]  # Remove '.py'
             full_module_name = f"{COMPANY_FOLDER}.{company_name}"
             module = importlib.import_module(full_module_name)
-            jobs[company_name]= module.main(current_jobs[i],test=test)
+            raw_list = module.main(current_jobs[i],test=test)
+            jobs[company_name] = [ensure_job(company_name, j) for j in (raw_list or [])]
             i+=1
             if jobs[company_name]:
                 any_new_job=True

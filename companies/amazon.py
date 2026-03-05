@@ -17,7 +17,7 @@ async def extractor():
             all_jobs={}
             detected_time = datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
             for job in jobs['jobs']:
-                all_jobs[job.get('id')] = ensure_job(_COMPANY, {
+                item = ensure_job(_COMPANY, {
                     'jobId': job.get('id'),
                     'url': "https://amazon.jobs"+job.get('job_path'),
                     'title': job.get('title'),
@@ -25,6 +25,7 @@ async def extractor():
                     'posted_date': job.get('posted_date'),
                     "detected": detected_time
                 })
+                all_jobs[item['jobId']] = item
             return all_jobs
 
 
