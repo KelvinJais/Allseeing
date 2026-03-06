@@ -1,0 +1,19 @@
+{
+  "adobe": {"enabled": true},
+  "amazon": {"enabled": true},
+  "apple": {"enabled": true},
+  "datadog": {"enabled": true},
+  "discord": {"enabled": true},
+  "figma": {"enabled": true},
+  "google": {"enabled": true},
+  "meta": {"enabled": true},
+  "microsoft": {"enabled": true},
+  "netflix": {"enabled": true},
+  "nutanix": {"enabled": true},
+  "nvidia": {"enabled": true},
+  "oracle": {"enabled": true},
+  "palantir": {"enabled": true},
+  "paypal": {"enabled": true},
+  "tesla": {"enabled": true},
+  "walmart": {"enabled": true}
+}

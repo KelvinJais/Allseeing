@@ -1,8 +1,7 @@
 import importlib
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 import os
 from helper import emailing
-import time
 import json
 import asyncio
 import boto3
@@ -10,6 +9,24 @@ from schemas import ensure_job
 from helper import job_state
 
 COMPANY_FOLDER = "companies"
+CONFIG_PATH = "companies_config.json"
+
+
+def _load_companies_config():
+    """Load companies config and return list of enabled company names."""
+    path = os.path.join(os.path.dirname(__file__), CONFIG_PATH)
+    with open(path, "r") as f:
+        config = json.load(f)
+    return [
+        name for name, opts in config.items()
+        if isinstance(opts, dict) and opts.get("enabled", True)
+        or not isinstance(opts, dict) and opts
+    ]
+
+
+def get_enabled_companies():
+    """Return list of enabled company names from config."""
+    return _load_companies_config()
 # Possible error if the data_for_website is never initialised then we will get an error
 def get_json_from_s3(bucket_name="allseeing-website", key="data_for_website.json"):
     s3_client = boto3.client('s3')
@@ -71,43 +88,34 @@ def update_website_remove_old_jobs():
 
 def clear_website_data():
     data = {}
-    data["date"]=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
-    data["jobs"]={}
-    for filename in os.listdir(COMPANY_FOLDER):
-        if filename.endswith(".py") and filename != "__init__.py" and filename[:-3]:
-            company_name = filename[:-3]  # Remove '.py'
-            data["jobs"][company_name]= []
+    data["date"] = datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00', 'Z')
+    data["jobs"] = {name: [] for name in get_enabled_companies()}
     with open("/tmp/data_for_website.json", "w") as f:
         json.dump(data, f, indent=4)
     print("website data cleared")
     upload_data_for_website()
 
-async def main(test=False,user="private",send_email=True):
+async def main(test=False, user="private", send_email=True):
     '''
     Runs all company extractors, diffs for new jobs, optionally emails and updates website.
     Returns jobs: dict[company_name, list[job_dict]] where each job_dict has the canonical
     schema (jobId, title, url, detected, source; optional: location, posted_date, updated_time).
+    Companies are loaded from companies_config.json; only enabled companies are run.
     '''
-    any_new_job=False
+    enabled = get_enabled_companies()
+    any_new_job = False
     jobs = {}
-    tasks=[]
-    companies_with_bug=()
-    for filename in os.listdir(COMPANY_FOLDER):
-        if filename.endswith(".py") and filename != "__init__.py" and filename[:-3] not in companies_with_bug:
-            company_name = filename[:-3]  # Remove '.py'
-            full_module_name = f"{COMPANY_FOLDER}.{company_name}"
-            module = importlib.import_module(full_module_name)
-            tasks.append(module.extractor())
+    tasks = []
+    for company_name in enabled:
+        full_module_name = f"{COMPANY_FOLDER}.{company_name}"
+        module = importlib.import_module(full_module_name)
+        tasks.append(module.extractor())
     current_jobs = await asyncio.gather(*tasks)
-    i = 0
-    for filename in os.listdir(COMPANY_FOLDER):
-        if filename.endswith(".py") and filename != "__init__.py" and filename[:-3] not in companies_with_bug:
-            company_name = filename[:-3]  # Remove '.py'
-            raw_list = job_state.diff_and_persist(company_name, current_jobs[i], test=test)
-            jobs[company_name] = [ensure_job(company_name, j) for j in (raw_list or [])]
-            i += 1
-            if jobs[company_name]:
-                any_new_job = True
+    for i, company_name in enumerate(enabled):
+        raw_list = job_state.diff_and_persist(company_name, current_jobs[i], test=test)
+        jobs[company_name] = [ensure_job(company_name, j) for j in (raw_list or [])]
+        if jobs[company_name]:
+            any_new_job = True
     if not send_email:
         print("Email not being sent")
     if any_new_job and send_email:

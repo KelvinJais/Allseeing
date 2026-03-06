@@ -72,6 +72,20 @@ This project is to help with job hunting. I was advised to try to be the first f
 
 After configuring email, run the script: ```python3 -m main```
 
+### 4. Company Configuration (Optional)
+
+Companies are loaded from `companies_config.json`. Each entry has an `enabled` flag:
+
+```json
+{
+  "amazon": {"enabled": true},
+  "meta": {"enabled": false}
+}
+```
+
+- Set `"enabled": false` to temporarily disable a company without deleting its file.
+- Add a new company: create the `companies/<name>.py` file and add `"<name>": {"enabled": true}` to the config.
+
 ---
 
 ## Architecture Overview
