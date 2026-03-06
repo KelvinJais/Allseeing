@@ -7,6 +7,7 @@ import json
 import asyncio
 import boto3
 from schemas import ensure_job
+from helper import job_state
 
 COMPANY_FOLDER = "companies"
 # Possible error if the data_for_website is never initialised then we will get an error
@@ -97,18 +98,16 @@ async def main(test=False,user="private",send_email=True):
             full_module_name = f"{COMPANY_FOLDER}.{company_name}"
             module = importlib.import_module(full_module_name)
             tasks.append(module.extractor())
-    current_jobs=await asyncio.gather(*tasks)
-    i=0
+    current_jobs = await asyncio.gather(*tasks)
+    i = 0
     for filename in os.listdir(COMPANY_FOLDER):
         if filename.endswith(".py") and filename != "__init__.py" and filename[:-3] not in companies_with_bug:
             company_name = filename[:-3]  # Remove '.py'
-            full_module_name = f"{COMPANY_FOLDER}.{company_name}"
-            module = importlib.import_module(full_module_name)
-            raw_list = module.main(current_jobs[i],test=test)
+            raw_list = job_state.diff_and_persist(company_name, current_jobs[i], test=test)
             jobs[company_name] = [ensure_job(company_name, j) for j in (raw_list or [])]
-            i+=1
+            i += 1
             if jobs[company_name]:
-                any_new_job=True
+                any_new_job = True
     if not send_email:
         print("Email not being sent")
     if any_new_job and send_email:
@@ -119,7 +118,7 @@ async def main(test=False,user="private",send_email=True):
     return jobs
 
 if __name__ == "__main__":
-    #asyncio.run(main())
+    asyncio.run(main())
     #clear_website_data()
-    update_website_remove_old_jobs()
+    #update_website_remove_old_jobs()
 

@@ -3,3 +3,9 @@ requests
 aiohttp
 httpx
 selectolax
+googlesearch-python
+selenium-wire
+selenium
+blinker<1.7
+pandas
+openpyxl

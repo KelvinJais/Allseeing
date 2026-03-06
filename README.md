@@ -95,14 +95,15 @@ After configuring email, run the script: ```python3 -m main```
 1. **Create a Company Script**
     - In the `companies` folder, add a new file: `company_name.py`.
 
-2. **Implement Required Functions**
-    - Each script must define:
-        - `extractor()`: Fetches and parses job postings.
-        - `main()`: Compares the new responses to the previous responses to check for new job postings.
-    - Include:
+2. **Implement the Extractor**
+    - Each script must define `extractor()`: an async function that fetches and parses job postings.
+    - Diffing and persistence are handled by `helper/job_state.py`; you only write the extractor.
+    - For standalone testing, include:
         ```
         if __name__ == "__main__":
-            main()
+            from helper import job_state
+            current_jobs = asyncio.run(extractor())
+            job_state.diff_and_persist(_COMPANY, current_jobs)
         ```
     - For reference, see `adobe.py`.
 
@@ -156,6 +157,6 @@ Example return from an extractor:
 
 ## Notes
 
-- **Debugging:** Use `if __name__ == "__main__":` in your company modules for standalone testing. Run the code: python -m companies.company_name to debug.
+- **Debugging:** Use `if __name__ == "__main__":` in your company modules for standalone testing. Run: `python -m companies.company_name` to extract and diff locally.
 
 

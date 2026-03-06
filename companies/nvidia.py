@@ -1,7 +1,6 @@
 import requests
 from datetime import datetime,timezone
 import json
-from helper import load_download
 import os
 import time
 import asyncio
@@ -62,37 +61,8 @@ async def extractor():
                     items[item["jobId"]] = item
             return items
 
-def hashmap(jobs):
-    jobs_hashmap={}
-    for job in jobs:
-        key = job['bulletFields'][0]
-        jobs_hashmap[key] = job
-    return jobs_hashmap
 
-def main(current_jobs,test=False):
-    company_name = _COMPANY
-    file_path=os.path.join("/tmp","data",f"{company_name}_jobs_list.json")
-    #Initializing files
-    if not os.path.exists(file_path):
-        job_data=current_jobs
-        load_download.download_json(job_data,f"{company_name}_jobs_list")
-        load_download.download_json(job_data,f"{company_name}_jobs_list_t_new_jobs")
-    else:
-        if test:
-            new_job_data=load_download.load_json(f"{company_name}_jobs_list_t_new_jobs")
-        else:
-            new_job_data=current_jobs
-        old_job_data=load_download.load_json(f"{company_name}_jobs_list")
-        brand_new_jobs=[]
-        for job in new_job_data.keys():
-            if job not in old_job_data:
-                brand_new_jobs.append(new_job_data[job])
-        if not test:
-            load_download.download_json(new_job_data,f"{company_name}_jobs_list")
-        print(len(brand_new_jobs),"new jobs at",company_name)
-        return brand_new_jobs
-
-
-if __name__ =="__main__":
-    current_jobs=asyncio.run(extractor())
-    main(current_jobs)
+if __name__ == "__main__":
+    from helper import job_state
+    current_jobs = asyncio.run(extractor())
+    job_state.diff_and_persist(_COMPANY, current_jobs)
