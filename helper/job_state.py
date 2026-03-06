@@ -39,5 +39,4 @@ def diff_and_persist(company_name: str, current_jobs: dict, test: bool = False) 
     if not test:
         load_download.download_json(old_job_data, f"{company_name}_jobs_list")
 
-    print(len(brand_new_jobs), "new jobs at", company_name)
     return brand_new_jobs

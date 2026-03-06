@@ -1,12 +1,15 @@
 import importlib
-from datetime import datetime, timezone
-import os
-from helper import emailing
 import json
+import os
+from datetime import datetime, timezone
+
 import asyncio
 import boto3
+
 from schemas import ensure_job
+from helper import emailing
 from helper import job_state
+from helper.extractor_runner import run_extractor
 
 COMPANY_FOLDER = "companies"
 CONFIG_PATH = "companies_config.json"
@@ -27,6 +30,22 @@ def _load_companies_config():
 def get_enabled_companies():
     """Return list of enabled company names from config."""
     return _load_companies_config()
+
+
+def _log_run(company, status, jobs_found=0, new_jobs=0, duration_ms=0, error=None):
+    """Structured log for CloudWatch/dashboard: {company, status, jobs_found, new_jobs, duration_ms}."""
+    entry = {
+        "company": company,
+        "status": status,
+        "jobs_found": jobs_found,
+        "new_jobs": new_jobs,
+        "duration_ms": round(duration_ms, 1),
+    }
+    if error:
+        entry["error"] = str(error)
+    print(json.dumps(entry))
+
+
 # Possible error if the data_for_website is never initialised then we will get an error
 def get_json_from_s3(bucket_name="allseeing-website", key="data_for_website.json"):
     s3_client = boto3.client('s3')
@@ -101,6 +120,7 @@ async def main(test=False, user="private", send_email=True):
     Returns jobs: dict[company_name, list[job_dict]] where each job_dict has the canonical
     schema (jobId, title, url, detected, source; optional: location, posted_date, updated_time).
     Companies are loaded from companies_config.json; only enabled companies are run.
+    Uses timeout (60s) and retries (3) per extractor; one failure does not stop the run.
     '''
     enabled = get_enabled_companies()
     any_new_job = False
@@ -109,12 +129,32 @@ async def main(test=False, user="private", send_email=True):
     for company_name in enabled:
         full_module_name = f"{COMPANY_FOLDER}.{company_name}"
         module = importlib.import_module(full_module_name)
-        tasks.append(module.extractor())
-    current_jobs = await asyncio.gather(*tasks)
+        tasks.append(run_extractor(module.extractor))
+    results = await asyncio.gather(*tasks, return_exceptions=True)
     for i, company_name in enumerate(enabled):
-        raw_list = job_state.diff_and_persist(company_name, current_jobs[i], test=test)
-        jobs[company_name] = [ensure_job(company_name, j) for j in (raw_list or [])]
-        if jobs[company_name]:
+        duration_ms = 0
+        if isinstance(results[i], BaseException):
+            _log_run(company_name, "error", duration_ms=0, error=results[i])
+            jobs[company_name] = []
+            continue
+        r = results[i]
+        if len(r) == 3 and r[0] is None:
+            _, duration_ms, err = r
+            _log_run(company_name, "error", duration_ms=duration_ms, error=err)
+            jobs[company_name] = []
+            continue
+        current_jobs, duration_ms = r[0], r[1]
+        jobs_found = len(current_jobs) if isinstance(current_jobs, dict) else 0
+        try:
+            raw_list = job_state.diff_and_persist(company_name, current_jobs, test=test)
+        except Exception as e:
+            _log_run(company_name, "error", jobs_found=jobs_found, duration_ms=duration_ms, error=e)
+            jobs[company_name] = []
+            continue
+        new_jobs_list = [ensure_job(company_name, j) for j in (raw_list or [])]
+        jobs[company_name] = new_jobs_list
+        _log_run(company_name, "ok", jobs_found=jobs_found, new_jobs=len(new_jobs_list), duration_ms=duration_ms)
+        if new_jobs_list:
             any_new_job = True
     if not send_email:
         print("Email not being sent")

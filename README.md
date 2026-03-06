@@ -172,5 +172,7 @@ Example return from an extractor:
 ## Notes
 
 - **Debugging:** Use `if __name__ == "__main__":` in your company modules for standalone testing. Run: `python -m companies.company_name` to extract and diff locally.
+- **Error handling:** Each extractor runs with a 60s timeout and up to 3 retries. A failing company does not stop the run; failures are logged as structured JSON.
+- **Structured logging:** Each company logs `{company, status, jobs_found, new_jobs, duration_ms}` (and `error` on failure) for CloudWatch/dashboard parsing.
 
 
