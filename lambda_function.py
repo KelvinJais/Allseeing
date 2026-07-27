@@ -7,6 +7,7 @@ import boto3
 from main import main, update_website_remove_old_jobs
 import asyncio
 from main import clear_website_data
+from amc import check
 
 def download_s3_folder(bucket_name):
     prefix = 'data/'  # For example: 'data/images/'
@@ -30,7 +31,9 @@ def upload_s3_folder(bucket_name):
             bucket.upload_file(file_path, s3_path)
 
 def lambda_handler(event, context):
-    if event["remove_old_jobs"]=="True":
+    if event["movie"]=="True":
+        check()
+    elif event["remove_old_jobs"]=="True":
         update_website_remove_old_jobs()
     elif event["user"]=="private":
         print("Private Run")
@@ -70,5 +73,9 @@ if __name__=="__main__":
     remove_old_jobs={
         "remove_old_jobs":"True",
                      }
+    for_amc_movies={
+        "movie":"True",
+    }
     #lambda_handler(event,"")
-    lambda_handler(private_event,"")
+    #lambda_handler(private_event,"")
+    lambda_handler(for_amc_movies,"")
