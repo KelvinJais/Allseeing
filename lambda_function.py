@@ -31,7 +31,7 @@ def upload_s3_folder(bucket_name):
             bucket.upload_file(file_path, s3_path)
 
 def lambda_handler(event, context):
-    if event["movie"]=="True":
+    if event.get("movie")=="True":
         check()
     elif event["remove_old_jobs"]=="True":
         update_website_remove_old_jobs()
@@ -77,5 +77,5 @@ if __name__=="__main__":
         "movie":"True",
     }
     #lambda_handler(event,"")
-    #lambda_handler(private_event,"")
-    lambda_handler(for_amc_movies,"")
+    lambda_handler(private_event,"")
+    #lambda_handler(for_amc_movies,"")
