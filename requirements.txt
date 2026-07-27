@@ -3,3 +3,4 @@ requests
 aiohttp
 httpx
 selectolax
+beautifulsoup4
